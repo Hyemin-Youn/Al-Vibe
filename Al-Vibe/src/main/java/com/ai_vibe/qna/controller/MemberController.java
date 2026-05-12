@@ -1,4 +1,4 @@
-package com.example.qna.controller;
+package com.ai_vibe.qna.controller;
 
 public class MemberController {
 }

@@ -1,4 +1,4 @@
-package com.example.qna.dto;
+package com.ai_vibe.qna.dto;
 
 public class MemberFormDto {
 }

@@ -1,4 +1,4 @@
-package com.example.qna.service;
+package com.ai_vibe.qna.service;
 
 public class MemberService {
 }
