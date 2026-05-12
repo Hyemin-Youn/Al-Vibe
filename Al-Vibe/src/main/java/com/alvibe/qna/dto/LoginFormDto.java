@@ -1,4 +1,4 @@
-package com.ai_vibe.qna.dto;
+package com.alvibe.qna.dto;
 
 public class LoginFormDto {
 }

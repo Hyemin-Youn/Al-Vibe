@@ -1,4 +1,4 @@
-package com.ai_vibe.qna.config;
+package com.alvibe.qna.config;
 
 public class SecurityConfig {
 }

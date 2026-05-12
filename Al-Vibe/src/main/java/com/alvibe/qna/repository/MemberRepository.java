@@ -1,4 +1,4 @@
-package com.ai_vibe.qna.repository;
+package com.alvibe.qna.repository;
 
 public class MemberRepository {
 }

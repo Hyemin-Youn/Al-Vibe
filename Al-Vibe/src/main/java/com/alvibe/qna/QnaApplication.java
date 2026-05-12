@@ -1,4 +1,4 @@
-package com.ai_vibe.qna;
+package com.alvibe.qna;
 
 public class QnaApplication {
 }
