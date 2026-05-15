@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-
 @NoArgsConstructor
 @Getter
 @Table(name = "members")
@@ -31,4 +30,9 @@ public class Member extends BaseTimeEntity {
     private MemberStatus status = MemberStatus.ACTIVE;
 
     private int sanctionsCount = 0;
+
+
+    public void changeToEncodedPassword(String encodedPassword){
+        this.password = encodedPassword;
+    }
 }
