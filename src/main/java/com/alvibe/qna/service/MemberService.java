@@ -28,12 +28,11 @@ public class MemberService implements UserDetailsService {
         return memberRepository.save(member);
     }
 
-    @Transactional
-    boolean existsByEmail(String email){
+    public boolean existsByEmail(String email){
        return memberRepository.existsByEmail(email);
     }
 
-    boolean existsByNickname(String nickname){
+    public boolean existsByNickname(String nickname){
         return memberRepository.existsByNickname(nickname);
     }
 
