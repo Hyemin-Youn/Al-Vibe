@@ -1,4 +1,11 @@
+application-local.properties
 .idea/
 target/
 .env
+.env.*
+!.env.example
+.idea/
+*.iml
+out/
+gen/
 *.class
