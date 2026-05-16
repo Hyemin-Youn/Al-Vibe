@@ -102,39 +102,30 @@ public class QuestionService {
 
     // 단순 list -> page로 변환
     public Page<Question> getQuestionPage(int page, String keyword, String sort) {
-        Pageable pageable;
+        Pageable pageable = switch (sort) {
+            case "view" -> PageRequest.of(
+                    page,
+                    10,
+                    Sort.by(Sort.Direction.DESC, "viewCount")
+            );
+            case "like" -> PageRequest.of(
+                    page,
+                    10,
+                    Sort.by(Sort.Direction.DESC, "recommendCount")
+            );
+            default -> PageRequest.of(
+                    page,
+                    10,
+                    Sort.by(Sort.Direction.DESC, "CreatedAt")
+            );
+        };
 
-        switch (sort) {
-            case "view":
-                pageable = PageRequest.of(
-                        page,
-                        10,
-                        Sort.by(Sort.Direction.DESC, "viewCount")
-                );
-                break;
-
-            case "like":
-                pageable = PageRequest.of(
-                        page,
-                        10,
-                        Sort.by(Sort.Direction.DESC, "recommendCount")
-                );
-                break;
-
-            default:
-                pageable = PageRequest.of(
-                        page,
-                        10,
-                        Sort.by(Sort.Direction.DESC, "CreatedAt")
-                );
-        }
-
-//        if(sort.equals("unanswered")) {
+        //        if(sort.equals("unanswered")) {
 //            if(keyword.isEmpty()) {
 //                return questionRepository.findByAnswersEmpty(pageable);
 //            }
 //
-//            return questionRepository.findByTitleContaingsAndAnswersEmpty(keyword, pageable);
+//            return questionRepository.findByTitleContainingAndAnswersEmpty(keyword, pageable);
 //        }
 
         if(keyword.isEmpty()) {
