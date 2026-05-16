@@ -1,0 +1,87 @@
+package com.alvibe.qna.service;
+
+import com.alvibe.qna.dto.AnswerFormDto;
+import com.alvibe.qna.entity.Answer;
+import com.alvibe.qna.entity.Member;
+import com.alvibe.qna.entity.Question;
+import com.alvibe.qna.repository.AnswerRepository;
+import com.alvibe.qna.repository.MemberRepository;
+import com.alvibe.qna.repository.QuestionRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+@Transactional
+public class AnswerService {
+
+    private final AnswerRepository answerRepository;
+    private final QuestionRepository questionRepository;
+    private final MemberRepository memberRepository;
+
+    // 1. 특정 질문에 대한 답변 목록 조회
+    public List<Answer> getAnswersByQuestionId(Long questionId) {
+        return answerRepository.findAnswersByQuestionIdWithFilter(questionId);
+    }
+
+    // 2. 답변 작성
+    public Long createAnswer(Long questionId, AnswerFormDto dto, Long memberId) {
+        Question question = questionRepository.findById(questionId)
+                .orElseThrow(() -> new IllegalArgumentException("질문을 찾을 수 없습니다. id=" + questionId));
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다. id=" + memberId));
+
+        Answer answer = new Answer();
+        answer.setQuestion(question);
+        answer.setMember(member);
+        answer.setContent(dto.getContent());
+
+        Answer saved = answerRepository.save(answer);
+        return saved.getId();
+    }
+
+    // 3. 답변 수정용 데이터 가져오기
+    public AnswerFormDto getAnswerForm(Long answerId) {
+        Answer answer = answerRepository.findById(answerId)
+                .orElseThrow(() -> new IllegalArgumentException("답변을 찾을 수 없습니다. id=" + answerId));
+
+        AnswerFormDto dto = new AnswerFormDto();
+        dto.setContent(answer.getContent());
+        return dto;
+    }
+
+    // 4. 답변 수정
+    public void updateAnswer(Long answerId, AnswerFormDto dto, Long memberId) {
+        Answer answer = answerRepository.findById(answerId)
+                .orElseThrow(() -> new IllegalArgumentException("답변을 찾을 수 없습니다. id=" + answerId));
+
+        if (!answer.getMember().getId().equals(memberId)) {
+            throw new IllegalStateException("작성자만 수정할 수 있습니다.");
+        }
+
+        answer.setContent(dto.getContent());
+    }
+
+    // 5. 답변 삭제
+    public void deleteAnswer(Long answerId, Long memberId) {
+        Answer answer = answerRepository.findById(answerId)
+                .orElseThrow(() -> new IllegalArgumentException("답변을 찾을 수 없습니다. id=" + answerId));
+
+        if (!answer.getMember().getId().equals(memberId)) {
+            throw new IllegalStateException("작성자만 삭제할 수 있습니다.");
+        }
+
+        answer.setDeleted(true);
+    }
+
+    // 6. 답변이 속한 questionId 조회 (대댓글 작성 후 리다이렉트용)
+    public Long getQuestionIdByAnswerId(Long answerId) {
+        Answer answer = answerRepository.findById(answerId)
+                .orElseThrow(() -> new IllegalArgumentException("답변을 찾을 수 없습니다. id=" + answerId));
+        return answer.getQuestion().getId();
+    }
+}
