@@ -86,7 +86,7 @@ CREATE TABLE question_board (
     view_count INT DEFAULT 0,																# 조회수
     created_at DATETIME NOT NULL DEFAULT current_timestamp,									# 작성 시간
     updated_at DATETIME NOT NULL DEFAULT current_timestamp ON UPDATE current_timestamp,		# 수정 시간
-    is_deleted BOOLEAN NOT NULL DEFAULT FALSE,											# 삭제표시 여부
+    is_deleted BOOLEAN NOT NULL DEFAULT FALSE,											    # 삭제표시 여부
     
     PRIMARY KEY (id),
     CONSTRAINT fk_members_question FOREIGN KEY (member_id) REFERENCES members(id),
@@ -223,7 +223,7 @@ CREATE INDEX idx_answer_question_date ON answers (question_id, created_at DESC);
 -- 특정 사용자가 작성한 답변을 최신순으로 불러올 인덱스 생성 (마이페이지/활동로그)
 CREATE INDEX idx_answer_member_date ON answers (member_id, created_at DESC);
 
--- 관리자 페이지 인덱스
+-- [3-1] 관리자 페이지 인덱스
 -- 신고 처리 대시보드: 미처리 신고 최신순
 CREATE INDEX idx_reports_status_create ON reports (status, created_at DESC);
 -- 특정 회원이 받은 신고 조회
