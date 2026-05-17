@@ -22,6 +22,7 @@ public class AnswerService {
     private final QuestionRepository questionRepository;
     private final MemberRepository memberRepository;
 
+
     // 1. 특정 질문에 대한 답변 목록 조회
     public List<Answer> getAnswersByQuestionId(Long questionId) {
         return answerRepository.findAnswersByQuestionIdWithFilter(questionId);
@@ -78,10 +79,50 @@ public class AnswerService {
         answer.setDeleted(true);
     }
 
-    // 6. 답변이 속한 questionId 조회 (대댓글 작성 후 리다이렉트용)
+    // 6. 답변이 속한 questionId 조회
     public Long getQuestionIdByAnswerId(Long answerId) {
         Answer answer = answerRepository.findById(answerId)
                 .orElseThrow(() -> new IllegalArgumentException("답변을 찾을 수 없습니다. id=" + answerId));
         return answer.getQuestion().getId();
+    }
+
+    // 7. 채택 처리
+    public void adoptAnswer(Long answerId, Long memberId) {
+        Answer answer = answerRepository.findById(answerId)
+                .orElseThrow(() -> new IllegalArgumentException("답변을 찾을 수 없습니다. id=" + answerId));
+
+        if (!answer.getQuestion().getMember().getId().equals(memberId)) {
+            throw new IllegalStateException("질문 작성자만 채택할 수 있습니다.");
+        }
+
+        // 기존 채택된 답변 자동 취소 후 새로 채택
+        List<Answer> answers = answerRepository.findAnswersByQuestionIdWithFilter(answer.getQuestion().getId());
+        answers.stream()
+                .filter(a -> a.isSelected())
+                .findFirst()
+                .ifPresent(a -> a.setSelected(false));
+
+        answer.setSelected(true);
+    }
+
+    // 8. 채택된 답변 1개 조회
+    public Answer getAdoptedAnswer(Long questionId) {
+        return answerRepository.findAnswersByQuestionIdWithFilter(questionId)
+                .stream()
+                .filter(a -> a.isSelected())
+                .findFirst()
+                .orElse(null);
+    }
+
+    // 9. 채택 취소
+    public void cancelAdopt(Long answerId, Long memberId) {
+        Answer answer = answerRepository.findById(answerId)
+                .orElseThrow(() -> new IllegalArgumentException("답변을 찾을 수 없습니다. id=" + answerId));
+
+        if (!answer.getQuestion().getMember().getId().equals(memberId)) {
+            throw new IllegalStateException("질문 작성자만 채택을 취소할 수 있습니다.");
+        }
+
+        answer.setSelected(false);
     }
 }

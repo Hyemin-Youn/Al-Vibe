@@ -2,10 +2,13 @@ package com.alvibe.qna.controller;
 
 import com.alvibe.qna.dto.AnswerFormDto;
 import com.alvibe.qna.entity.Answer;
+import com.alvibe.qna.repository.MemberRepository;
 import com.alvibe.qna.service.AnswerService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -19,94 +22,129 @@ import java.util.List;
 public class AnswerController {
 
     private final AnswerService answerService;
+    private final MemberRepository memberRepository;
 
-    // ─────────────────────────────────────────────────────────
-    // POST /questions/{qid}/answers  → 답변 작성
-    // ─────────────────────────────────────────────────────────
+    private Long getMemberId(UserDetails userDetails) {
+        return memberRepository.findByEmail(userDetails.getUsername())
+                .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다."))
+                .getId();
+    }
+
+    // 답변 작성
     @PostMapping("/questions/{qid}/answers")
     public String createAnswer(
             @PathVariable Long qid,
             @Valid @ModelAttribute AnswerFormDto dto,
             BindingResult bindingResult,
-            HttpSession session,
+            @AuthenticationPrincipal UserDetails userDetails,
             RedirectAttributes redirectAttributes) {
 
-        // 로그인 여부 확인
-        Long memberId = (Long) session.getAttribute("memberId");
-        if (memberId == null) {
-            return "redirect:/member/login";
-        }
+        if (userDetails == null) return "redirect:/member/login";
 
-        // 유효성 검사 실패 시 질문 상세 페이지로 돌아가기
         if (bindingResult.hasErrors()) {
             redirectAttributes.addFlashAttribute("answerError",
                     bindingResult.getFieldError("content").getDefaultMessage());
             redirectAttributes.addFlashAttribute("answerFormDto", dto);
-            return "redirect:/questions/" + qid;
+            return "redirect:/questions/detail/" + qid;
         }
 
-        answerService.createAnswer(qid, dto, memberId);
-        return "redirect:/questions/" + qid;
+        answerService.createAnswer(qid, dto, getMemberId(userDetails));
+        return "redirect:/questions/detail/" + qid;
     }
 
-    // ─────────────────────────────────────────────────────────
-    // GET /questions/{qid}/answers  → 답변 목록 조회
-    //  (질문 상세 페이지에서 Fragment 또는 AJAX 용도로 활용 가능)
-    // ─────────────────────────────────────────────────────────
+    //답변 목록 조회
     @GetMapping("/questions/{qid}/answers")
     public String getAnswers(
             @PathVariable Long qid,
-            Model model) {
+            Model model,
+            @AuthenticationPrincipal UserDetails userDetails) {
 
-        List<Answer> answers = answerService.getAnswersByQuestionId(qid);
-        model.addAttribute("answers", answers);
-        model.addAttribute("questionId", qid);
-        return "answer/list"; // templates/answer/list.html
+        model.addAttribute("answers", answerService.getAnswersByQuestionId(qid));
+        model.addAttribute("adoptedAnswer", answerService.getAdoptedAnswer(qid));
+        model.addAttribute("answerFormDto", new AnswerFormDto());
+
+        if (userDetails != null) {
+            Long memberId = getMemberId(userDetails);
+            model.addAttribute("sessionMemberId", memberId);
+        } else {
+            model.addAttribute("sessionMemberId", null);
+        }
+
+        return "answer/list :: answerSection";
     }
 
-    // ─────────────────────────────────────────────────────────
-    // POST /answers/{id}/update  → 답변 수정 처리
-    // ─────────────────────────────────────────────────────────
+    //답변 수정 처리
     @PostMapping("/answers/{id}/update")
     public String updateAnswer(
             @PathVariable Long id,
             @Valid @ModelAttribute AnswerFormDto dto,
             BindingResult bindingResult,
-            HttpSession session,
+            @AuthenticationPrincipal UserDetails userDetails,
             RedirectAttributes redirectAttributes) {
 
-        Long memberId = (Long) session.getAttribute("memberId");
-        if (memberId == null) {
-            return "redirect:/member/login";
-        }
+
+        if (userDetails == null) return "redirect:/member/login";
+
+        Long questionId = answerService.getQuestionIdByAnswerId(id);
 
         if (bindingResult.hasErrors()) {
             redirectAttributes.addFlashAttribute("answerError",
                     bindingResult.getFieldError("content").getDefaultMessage());
-            Long questionId = answerService.getQuestionIdByAnswerId(id);
-            return "redirect:/questions/" + questionId;
+            return "redirect:/questions/detail/" + questionId;
         }
 
-        Long questionId = answerService.getQuestionIdByAnswerId(id);
-        answerService.updateAnswer(id, dto, memberId);
-        return "redirect:/questions/" + questionId;
+        answerService.updateAnswer(id, dto, getMemberId(userDetails));
+        return "redirect:/questions/detail/" + questionId;
     }
 
     //답변 삭제
     @PostMapping("/answers/{id}/delete")
     public String deleteAnswer(
             @PathVariable Long id,
-            HttpSession session) {
+            @AuthenticationPrincipal UserDetails userDetails) {
 
-        Long memberId = (Long) session.getAttribute("memberId");
-        if (memberId == null) {
-            return "redirect:/member/login";
+        if (userDetails == null) return "redirect:/member/login";
+
+        Long questionId = answerService.getQuestionIdByAnswerId(id);
+        answerService.deleteAnswer(id, getMemberId(userDetails));
+        return "redirect:/questions/detail/" + questionId;
+    }
+
+    // 채택 처리
+    @PostMapping("/answers/{id}/adopt")
+    public String adoptAnswer(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetails userDetails,
+            RedirectAttributes redirectAttributes) {
+
+        if (userDetails == null) return "redirect:/member/login";
+
+        try {
+            answerService.adoptAnswer(id, getMemberId(userDetails));
+        } catch (IllegalStateException e) {
+            redirectAttributes.addFlashAttribute("answerError", e.getMessage());
         }
 
-        // 삭제 전에 questionId 먼저 조회 (삭제 후엔 조회 불가)
         Long questionId = answerService.getQuestionIdByAnswerId(id);
+        return "redirect:/questions/detail/" + questionId;
+    }
 
-        answerService.deleteAnswer(id, memberId);
-        return "redirect:/questions/" + questionId;
+    // 채택 취소
+    @PostMapping("/answers/{id}/cancel-adopt")
+    public String cancelAdopt(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetails userDetails,
+            RedirectAttributes redirectAttributes) {
+
+        if (userDetails == null) return "redirect:/member/login";
+
+        try {
+            answerService.cancelAdopt(id, getMemberId(userDetails));
+        } catch (IllegalStateException e) {
+            redirectAttributes.addFlashAttribute("answerError", e.getMessage());
+        }
+
+        Long questionId = answerService.getQuestionIdByAnswerId(id);
+        return "redirect:/questions/detail/" + questionId;
     }
 }
