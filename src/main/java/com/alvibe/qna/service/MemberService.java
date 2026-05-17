@@ -1,6 +1,8 @@
 package com.alvibe.qna.service;
 
+import com.alvibe.qna.dto.MemberSignupDto;
 import com.alvibe.qna.entity.Member;
+import com.alvibe.qna.entity.MemberRole;
 import com.alvibe.qna.repository.MemberRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,8 +25,14 @@ public class MemberService implements UserDetailsService {
     }
 
     @Transactional  // DB 적용
-    public Member register(Member member){
-        member.changeToEncodedPassword(passwordEncoder.encode(member.getPassword()));
+    public Member signup(MemberSignupDto memberSignupDto){
+        Member member = Member.builder()
+                .email(memberSignupDto.getEmail())
+                .password((passwordEncoder.encode(memberSignupDto.getPassword())))
+                .nickname(memberSignupDto.getNickname())
+                .role(MemberRole.USER)
+                .build();
+
         return memberRepository.save(member);
     }
 

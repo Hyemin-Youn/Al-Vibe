@@ -5,6 +5,8 @@ import lombok.*;
 
 @Entity
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Getter
 @Table(name = "members")
 public class Member extends BaseTimeEntity {
