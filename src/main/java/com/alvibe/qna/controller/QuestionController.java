@@ -2,9 +2,12 @@ package com.alvibe.qna.controller;
 
 import com.alvibe.qna.dto.QuestionFormDto;
 import com.alvibe.qna.entity.Question;
+import com.alvibe.qna.repository.MemberRepository;
 import com.alvibe.qna.service.QuestionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -17,6 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class QuestionController {
     private final QuestionService questionService;
+    private final MemberRepository memberRepository;
 
     @GetMapping("/list")
     public String list(Model model) {
@@ -26,9 +30,18 @@ public class QuestionController {
     }
 
     @GetMapping("/detail/{id}")
-    public String detail(@PathVariable Long id, Model model) {
+    public String detail(@PathVariable Long id,
+                         @AuthenticationPrincipal UserDetails userDetails,
+                         Model model) {
         Question question = questionService.getQuestionDetail(id);
         model.addAttribute("question", question);
+
+        boolean isAuthor = false;
+        if (userDetails != null) {
+            isAuthor = userDetails.getUsername().equals(question.getMember().getEmail());
+        }
+        model.addAttribute("isAuthor", isAuthor);
+
         return "question/detail";
     }
 
@@ -56,11 +69,23 @@ public class QuestionController {
 
     // 수정 폼 가져오기
     @GetMapping("/edit/{id}")
-    public String editForm(@PathVariable Long id, Model model) {
-        QuestionFormDto dto = questionService.getQuestionForm(id);
+    public String editForm(@PathVariable Long id,
+                           @AuthenticationPrincipal UserDetails userDetails,
+                           Model model) {
+
+        if (userDetails == null) {
+            return "redirect:/member/login";
+        }
+
+        Long memberId = memberRepository.findByEmail(userDetails.getUsername())
+                .orElseThrow(() -> new IllegalStateException("로그인 정보 오류"))
+                .getId();
+
+        QuestionFormDto dto = questionService.getQuestionForm(id, memberId);
+
         model.addAttribute("questionFormDto", dto);
         model.addAttribute("categories", questionService.getAllCategories());
-        model.addAttribute("questionId", id);   // 폼 action 에서 사용
+        model.addAttribute("questionId", id);
         return "question/edit";
     }
 
@@ -83,8 +108,15 @@ public class QuestionController {
     }
 
     @PostMapping("/delete/{id}")
-    public String delete(@PathVariable Long id) {
-        Long memberId = 1L;   // TODO: Security 적용 후 실제 로그인 유저로
+    public String delete(@PathVariable Long id,
+                         @AuthenticationPrincipal UserDetails userDetails) {
+        if (userDetails == null) {
+            return "redirect:/member/login";
+        }
+
+        Long memberId = memberRepository.findByEmail(userDetails.getUsername())
+                .orElseThrow(() -> new IllegalStateException("로그인 정보 오류"))
+                .getId();
 
         questionService.deleteQuestion(id, memberId);
         return "redirect:/questions/list";
