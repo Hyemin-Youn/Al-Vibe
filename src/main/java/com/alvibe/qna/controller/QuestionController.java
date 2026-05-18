@@ -50,9 +50,9 @@ public class QuestionController {
         model.addAttribute("questionId", id);
         model.addAttribute("answerFormDto", new AnswerFormDto());
         // 병합 후 아래 3줄 삭제 필요
-        model.addAttribute("answers", answerService.getAnswersByQuestionId(id));
-        model.addAttribute("adoptedAnswer", answerService.getAdoptedAnswer(id));
-        model.addAttribute("sessionMemberId", 2L); // 임시 하드코딩
+//        model.addAttribute("answers", answerService.getAnswersByQuestionId(id));
+//        model.addAttribute("adoptedAnswer", answerService.getAdoptedAnswer(id));
+//        model.addAttribute("sessionMemberId", 2L); // 임시 하드코딩
 
         return "question/detail";
     }
