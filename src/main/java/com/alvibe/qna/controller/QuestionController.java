@@ -10,6 +10,10 @@ import com.alvibe.qna.service.QuestionService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
@@ -27,17 +31,27 @@ public class QuestionController {
     private final MemberRepository memberRepository;
 
     @GetMapping("/list")
-    public String list(Model model) {
-        List<Question> questions = questionService.getAllQuestion();
-        model.addAttribute("questions", questions);
+    public String list(Model model,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "keyword", defaultValue = "") String keyword,
+            @RequestParam(value = "sort", defaultValue = "latest") String sort) {
+
+        Page<Question> questionPage = questionService.getQuestionPage(page, keyword, sort);
+
+        // List<Question> popularQuestions = questionService.getPopularQuestions();
+
+        model.addAttribute("questionPage", questionPage);
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("sort", sort);
+        // model.addAttribute("popularQuestion", popularQuestions);
+
         return "question/list";
     }
 
     @GetMapping("/detail/{id}")
-    public String detail(@PathVariable Long id,
-            @AuthenticationPrincipal UserDetails userDetails,
-            Model model) {
-        Question question = questionService.getQuestionDetail(id);
+    public String detail(@PathVariable Long id, Model model, HttpSession session,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        Question question = questionService.getQuestionDetail(id, session);
         model.addAttribute("question", question);
 
         boolean isAuthor = false;
@@ -49,10 +63,10 @@ public class QuestionController {
         // detail.html에서 답변 영역 추가
         model.addAttribute("questionId", id);
         model.addAttribute("answerFormDto", new AnswerFormDto());
-        // 병합 후 아래 3줄 삭제 필요
-//        model.addAttribute("answers", answerService.getAnswersByQuestionId(id));
-//        model.addAttribute("adoptedAnswer", answerService.getAdoptedAnswer(id));
-//        model.addAttribute("sessionMemberId", 2L); // 임시 하드코딩
+        // // 병합 후 아래 3줄 삭제 필요
+        // model.addAttribute("answers", answerService.getAnswersByQuestionId(id));
+        // model.addAttribute("adoptedAnswer", answerService.getAdoptedAnswer(id));
+        // model.addAttribute("sessionMemberId", 2L); // 임시 하드코딩
 
         return "question/detail";
     }
@@ -133,4 +147,30 @@ public class QuestionController {
         questionService.deleteQuestion(id, memberId);
         return "redirect:/questions/list";
     }
+
+    // 질문 목록 조회 (페이지 번호, 사이즈, 정렬 기준)
+    @GetMapping
+    public String getQuestions(
+            Model model,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String direction) {
+
+        Sort sort = direction.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        // Page<Question> questionPage = questionService.getAllQuestion();
+        //
+        // model.addAttribute("questionPage", questionPage);
+        return "/";
+    }
+
+    //
+    // // 연관 Q&A
+    // @GetMapping("/{pid}/related")
+    // public String related(@PathVariable("pid") int pid) {
+    //
+    // }
+
 }

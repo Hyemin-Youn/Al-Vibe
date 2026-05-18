@@ -6,6 +6,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "question_board")
@@ -35,4 +36,7 @@ public class Question {
     private LocalDateTime updatedAt;
 
     private boolean isDeleted;
+
+//    @OneToMany(mappedBy = "question")
+//    private List<Answer> answers;
 }
