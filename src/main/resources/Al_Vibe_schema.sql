@@ -19,7 +19,7 @@ DROP TABLE IF EXISTS members;
 -- 회원(members) 테이블 생성
 CREATE TABLE members (
 	id BIGINT AUTO_INCREMENT, 															# 식별자[PK]
-    email VARCHAR(100) UNIQUE NOT NULL, 												# 이메일(로그인 ID)
+    email VARCHAR(255) UNIQUE NOT NULL, 												# 이메일(로그인 ID)
     password VARCHAR(255) NOT NULL,														# 비밀번호
     nickname VARCHAR(20) UNIQUE NOT NULL,												# 닉네임
     role VARCHAR(20) NOT NULL DEFAULT 'USER',											# 권한(ADMIN/USER)
