@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       th:replace="~{layout/base :: base(~{::content})}">
-<head><title>알바이브 - 회원가입</title></head>
+<head>
+    <title>알바이브 - 회원가입</title>
+</head>
 <body>
 <th:block th:fragment="content">
     <div class="container d-flex justify-content-center py-5">
@@ -9,38 +11,66 @@
             <h4 class="fw-bold mb-1">회원가입</h4>
             <p class="text-muted mb-4" style="font-size:13px">알바이브와 함께 시작해보세요</p>
 
-            <form th:action="@{/members/signup}" method="post">
+            <form th:action="@{/member/signup}" th:object="${memberSignupDto}" method="post">
+
                 <div class="mb-3">
-                    <label class="form-label fw-semibold">아이디 <span style="color:#ea580c">*</span></label>
-                    <div class="d-flex gap-2">
-                        <input type="text" name="username" class="form-control" placeholder="영문, 숫자 4~20자">
-                        <button type="button" class="btn btn-outline-secondary btn-sm" style="white-space:nowrap">중복 확인</button>
-                    </div>
-                    <div class="form-text">영문 소문자, 숫자만 사용 가능합니다.</div>
+                    <label for="email" class="form-label fw-semibold">
+                        이메일 <span style="color:#ea580c">*</span>
+                    </label>
+                    <input type="email" id="email"
+                           class="form-control"
+                           th:field="*{email}"
+                           th:classappend="${#fields.hasErrors('email')} ? 'is-invalid' : ''"
+                           placeholder="example@email.com">
+                    <div class="invalid-feedback"
+                         th:if="${#fields.hasErrors('email')}"
+                         th:errors="*{email}"></div>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label fw-semibold">비밀번호 <span style="color:#ea580c">*</span></label>
-                    <input type="password" name="password" class="form-control" placeholder="8자 이상, 영문+숫자+특수문자">
+                    <label for="password" class="form-label fw-semibold">
+                        비밀번호 <span style="color:#ea580c">*</span>
+                    </label>
+                    <input type="password" id="password"
+                           class="form-control"
+                           th:field="*{password}"
+                           th:classappend="${#fields.hasErrors('password')} ? 'is-invalid' : ''"
+                           placeholder="8자 이상 입력해주세요">
                     <div class="form-text">8자 이상, 영문, 숫자, 특수문자를 포함해야 합니다.</div>
+                    <div class="invalid-feedback"
+                         th:if="${#fields.hasErrors('password')}"
+                         th:errors="*{password}"></div>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label fw-semibold">비밀번호 확인 <span style="color:#ea580c">*</span></label>
-                    <input type="password" name="passwordConfirm" class="form-control" placeholder="비밀번호를 다시 입력해주세요">
+                    <label for="passwordConfirm" class="form-label fw-semibold">
+                        비밀번호 확인 <span style="color:#ea580c">*</span>
+                    </label>
+                    <input type="password" id="passwordConfirm"
+                           class="form-control"
+                           th:field="*{passwordConfirm}"
+                           th:classappend="${#fields.hasErrors('passwordConfirm') || #fields.hasErrors('validPassword')} ? 'is-invalid' : ''"
+                           placeholder="비밀번호를 다시 입력해주세요">
+                    <div class="invalid-feedback"
+                         th:if="${#fields.hasErrors('passwordConfirm')}"
+                         th:errors="*{passwordConfirm}"></div>
+                    <div class="invalid-feedback"
+                         th:if="${#fields.hasErrors('validPassword')}"
+                         th:errors="*{validPassword}"></div>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label fw-semibold">닉네임 <span style="color:#ea580c">*</span></label>
-                    <div class="d-flex gap-2">
-                        <input type="text" name="nickname" class="form-control" placeholder="2~10자">
-                        <button type="button" class="btn btn-outline-secondary btn-sm" style="white-space:nowrap">중복 확인</button>
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label fw-semibold">이메일 <span style="color:#ea580c">*</span></label>
-                    <input type="email" name="email" class="form-control" placeholder="example@email.com">
+                    <label for="nickname" class="form-label fw-semibold">
+                        닉네임 <span style="color:#ea580c">*</span>
+                    </label>
+                    <input type="text" id="nickname"
+                           class="form-control"
+                           th:field="*{nickname}"
+                           th:classappend="${#fields.hasErrors('nickname')} ? 'is-invalid' : ''"
+                           placeholder="2~10자">
+                    <div class="invalid-feedback"
+                         th:if="${#fields.hasErrors('nickname')}"
+                         th:errors="*{nickname}"></div>
                 </div>
 
                 <div class="border rounded p-3 mb-4" style="font-size:13px">
@@ -64,7 +94,7 @@
 
             <p class="text-center text-muted mt-3" style="font-size:13px">
                 이미 계정이 있으신가요?
-                <a th:href="@{/members/login}" style="color:#ea580c;font-weight:600">로그인</a>
+                <a th:href="@{/member/login}" style="color:#ea580c;font-weight:600">로그인</a>
             </p>
         </div>
     </div>

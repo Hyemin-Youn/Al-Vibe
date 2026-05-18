@@ -1,5 +1,6 @@
 package com.alvibe.qna.entity;
 
+import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
