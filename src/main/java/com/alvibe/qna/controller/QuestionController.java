@@ -1,6 +1,5 @@
 package com.alvibe.qna.controller;
 
-
 import com.alvibe.qna.dto.AnswerFormDto;
 import com.alvibe.qna.dto.QuestionFormDto;
 import com.alvibe.qna.entity.Member;
@@ -26,7 +25,6 @@ import java.util.List;
 public class QuestionController {
     private final QuestionService questionService;
     private final MemberRepository memberRepository;
-    private final AnswerService answerService; //답변 기능 추가
 
     @GetMapping("/list")
     public String list(Model model) {
@@ -36,7 +34,9 @@ public class QuestionController {
     }
 
     @GetMapping("/detail/{id}")
-    public String detail(@PathVariable Long id, Model model, @AuthenticationPrincipal UserDetails userDetails) {
+    public String detail(@PathVariable Long id,
+            @AuthenticationPrincipal UserDetails userDetails,
+            Model model) {
         Question question = questionService.getQuestionDetail(id);
         model.addAttribute("question", question);
 
@@ -52,8 +52,7 @@ public class QuestionController {
         // 병합 후 아래 3줄 삭제 필요
         model.addAttribute("answers", answerService.getAnswersByQuestionId(id));
         model.addAttribute("adoptedAnswer", answerService.getAdoptedAnswer(id));
-        model.addAttribute("sessionMemberId", 2L);  // 임시 하드코딩
-
+        model.addAttribute("sessionMemberId", 2L); // 임시 하드코딩
 
         return "question/detail";
     }
@@ -67,14 +66,14 @@ public class QuestionController {
 
     @PostMapping("/new")
     public String create(@Valid @ModelAttribute QuestionFormDto questionFormDto,
-                         BindingResult bindingResult,
-                         Model model) {
+            BindingResult bindingResult,
+            Model model) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("categories", questionService.getAllCategories());
             return "question/form";
         }
 
-        Long memberId = 1L;  // 임시 테스트 유저
+        Long memberId = 1L; // 임시 테스트 유저
 
         Long savedId = questionService.createQuestion(questionFormDto, memberId);
         return "redirect:/questions/detail/" + savedId;
@@ -83,8 +82,8 @@ public class QuestionController {
     // 수정 폼 가져오기
     @GetMapping("/edit/{id}")
     public String editForm(@PathVariable Long id,
-                           @AuthenticationPrincipal UserDetails userDetails,
-                           Model model) {
+            @AuthenticationPrincipal UserDetails userDetails,
+            Model model) {
 
         if (userDetails == null) {
             return "redirect:/member/login";
@@ -94,7 +93,7 @@ public class QuestionController {
                 .orElseThrow(() -> new IllegalStateException("로그인 정보 오류"))
                 .getId();
 
-        QuestionFormDto dto = questionService.getQuestionForm(id);
+        QuestionFormDto dto = questionService.getQuestionForm(id, memberId);
 
         model.addAttribute("questionFormDto", dto);
         model.addAttribute("categories", questionService.getAllCategories());
@@ -105,16 +104,16 @@ public class QuestionController {
     // 수정 처리
     @PostMapping("/edit/{id}")
     public String edit(@PathVariable Long id,
-                       @Valid @ModelAttribute QuestionFormDto questionFormDto,
-                       BindingResult bindingResult,
-                       Model model) {
+            @Valid @ModelAttribute QuestionFormDto questionFormDto,
+            BindingResult bindingResult,
+            Model model) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("categories", questionService.getAllCategories());
             model.addAttribute("questionId", id);
             return "question/edit";
         }
 
-        Long memberId = 1L;   // 임시로 id 1번 유저 강제
+        Long memberId = 1L; // 임시로 id 1번 유저 강제
 
         questionService.updateQuestion(id, questionFormDto, memberId);
         return "redirect:/questions/detail/" + id;
@@ -122,7 +121,7 @@ public class QuestionController {
 
     @PostMapping("/delete/{id}")
     public String delete(@PathVariable Long id,
-                         @AuthenticationPrincipal UserDetails userDetails) {
+            @AuthenticationPrincipal UserDetails userDetails) {
         if (userDetails == null) {
             return "redirect:/member/login";
         }
