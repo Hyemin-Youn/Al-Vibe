@@ -39,9 +39,10 @@
         </div>
     </div>
 
-    <hr class="my-4">
-    <h4>댓글</h4>
-    <p class="text-muted small"></p>
+    <!-- 답변 영역 -->
+    <div th:replace="~{answer/list :: answerSection}"></div>
+
+    <th:block th:replace="~{answer/list :: answerScript}"></th:block>
 
 </div>
 </body>

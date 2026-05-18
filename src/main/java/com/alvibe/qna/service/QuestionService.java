@@ -68,9 +68,13 @@ public class QuestionService {
 
     // 4. 글 수정
     // 수정용 데이터 가져오기
-    public QuestionFormDto getQuestionForm(Long id) {
+    public QuestionFormDto getQuestionForm(Long id, Long memberId) {
         Question question = questionRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("질문을 찾을 수 없습니다"));
+
+        if (!question.getMember().getId().equals(memberId)) {
+            throw new IllegalStateException("작성자만 수정할 수 있습니다");
+        }
 
         QuestionFormDto dto = new QuestionFormDto();
         dto.setTitle(question.getTitle());
