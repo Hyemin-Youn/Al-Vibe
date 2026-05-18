@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>질문 목록</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-4">
+    <h2>알바 질문 게시판</h2>
+
+    <!--  검색창  -->
+    <form th:action="@{/questions/list}" method="get"
+          class="row g-2 mb-3">
+
+        <div class="col-auto">
+
+            <input type="text"
+                   name="keyword"
+                   th:value="${keyword}"
+                   class="form-control"
+                   placeholder="검색어 입력">
+
+        </div>
+
+        <input type="hidden"
+               name="sort"
+               th:value="${sort}">
+
+        <div class="col-auto">
+            <button type="submit"
+                    class="btn btn-primary">
+                검색
+            </button>
+        </div>
+
+    </form>
+
+    <div class="mb-3">
+
+        <a th:href="@{/questions/list(
+            sort='latest',
+            keyword=${keyword}
+        )}"
+           class="btn btn-outline-secondary btn-sm">
+            최신순
+        </a>
+
+        <a th:href="@{/questions/list(
+            sort='view',
+            keyword=${keyword}
+        )}"
+           class="btn btn-outline-secondary btn-sm">
+            조회순
+        </a>
+
+        <a th:href="@{/questions/list(
+            sort='like',
+            keyword=${keyword}
+        )}"
+           class="btn btn-outline-secondary btn-sm">
+            추천순(DB에 like 컬럼 X)
+        </a>
+
+        <a th:href="@{/questions/list(
+            sort='unanswered',
+            keyword=${keyword}
+        )}"
+           class="btn btn-outline-secondary btn-sm">
+            미답변순(아직X)
+        </a>
+
+    </div>
+
+    <div class="text-end mb-3">
+        <a href="/questions/new" class="btn btn-primary">글 작성</a>
+    </div>
+
+    <table class="table table-hover mt-3">
+        <thead class="table-light">
+        <tr>
+            <th style="width: 60px;">번호</th>
+            <th style="width: 120px;">카테고리</th>
+            <th>제목</th>
+            <th style="width: 120px;">작성자</th>
+            <th style="width: 80px;">조회수</th>
+            <th style="width: 160px;">작성일</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="q : ${questionPage.content}">
+            <td th:text="${q.id}"></td>
+            <td th:text="${q.category.name}"></td>
+            <td>
+                <a th:href="@{'/questions/detail/' + ${q.id}}"
+                   th:text="${q.title}"
+                   class="text-decoration-none text-dark"></a>
+            </td>
+            <td th:text="${q.member.nickname}"></td>
+            <td th:text="${q.viewCount}"></td>
+            <td th:text="${#temporals.format(q.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(questionPage.content)}">
+            <td colspan="6" class="text-center text-muted py-4">등록된 질문이 없습니다.</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div class="mt-4 text-center" th:if="${!#lists.isEmpty(questionPage.content)}">
+
+        <!-- 이전 -->
+        <a th:if="${!questionPage.first}"
+           th:href="@{/questions/list(
+                page=${questionPage.number - 1},
+                keyword=${keyword},
+                sort=${sort})}">
+            이전
+        </a>
+
+        <!-- 페이지 번호 -->
+        <span th:each="i : ${#numbers.sequence(0, questionPage.totalPages - 1)}">
+            <a th:href="@{/questions/list(
+                        page=${i},
+                        keyword=${keyword},
+                        sort=${sort}
+                    )}"
+               th:text="${i + 1}"
+               th:style="${i == questionPage.number}
+                    ? 'font-weight:bold; color:red;'
+                    : ''">
+            </a>
+        </span>
+
+        <!-- 다음 -->
+        <a th:if="${!questionPage.last}"
+           th:href="@{/questions/list(
+                    page=${questionPage.number + 1},
+                    keyword=${keyword},
+                    sort=${sort})}">
+            다음
+        </a>
+
+    </div>
+</div>
+</body>
+</html>
