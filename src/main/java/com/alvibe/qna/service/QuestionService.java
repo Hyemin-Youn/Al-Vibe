@@ -7,6 +7,7 @@ import com.alvibe.qna.entity.Question;
 import com.alvibe.qna.repository.CategoryRepository;
 import com.alvibe.qna.repository.MemberRepository;
 import com.alvibe.qna.repository.QuestionRepository;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -32,9 +33,14 @@ public class QuestionService {
     }
 
     // 2. 질문 상세 조회
-    public Question getQuestionDetail(Long id) {
+    public Question getQuestionDetail(Long id, HttpSession session) {
         Question question = questionRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("질문을 찾을 수 없습니다. id=" + id));
+        String viewKey = "question_view_" + id;
+        if(session.getAttribute(viewKey) != null) {
+            questionRepository.increaseView(id);
+            session.setAttribute(viewKey, viewKey);
+        }
         question.setViewCount(question.getViewCount() + 1);
         return question;
     }
@@ -134,4 +140,10 @@ public class QuestionService {
 
         return questionRepository.findByTitleContaining(keyword, pageable);
     }
+
+    // 인기 질문 5개 추출
+//    public List<Question> getPopularQuestions() {
+//        // like 칼럼 없음
+//        return questionRepository.findTop5ByOrderByLikeCountDesc();
+//    }
 }

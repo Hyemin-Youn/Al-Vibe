@@ -3,6 +3,7 @@ package com.alvibe.qna.controller;
 import com.alvibe.qna.dto.QuestionFormDto;
 import com.alvibe.qna.entity.Question;
 import com.alvibe.qna.service.QuestionService;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -30,16 +31,19 @@ public class QuestionController {
 
         Page<Question> questionPage = questionService.getQuestionPage(page, keyword, sort);
 
+//        List<Question> popularQuestions = questionService.getPopularQuestions();
+
         model.addAttribute("questionPage", questionPage);
         model.addAttribute("keyword", keyword);
         model.addAttribute("sort", sort);
+//        model.addAttribute("popularQuestion", popularQuestions);
 
         return "question/list";
     }
 
     @GetMapping("/detail/{id}")
-    public String detail(@PathVariable Long id, Model model) {
-        Question question = questionService.getQuestionDetail(id);
+    public String detail(@PathVariable Long id, Model model, HttpSession session) {
+        Question question = questionService.getQuestionDetail(id, session);
         model.addAttribute("question", question);
         return "question/detail";
     }
@@ -120,17 +124,6 @@ public class QuestionController {
         return "/";
     }
 
-//    // 질문 조회수 증가
-//    @PostMapping("/{pid}/view")
-//    public String view(@PathVariable("pid") int pid) {
-//
-//    }
-//
-//    // 인기 Q&A
-//    @GetMapping("/{pid}/popular")
-//    public String popular(@PathVariable("pid") int pid) {
-//
-//    }
 //
 //    // 연관 Q&A
 //    @GetMapping("/{pid}/related")
