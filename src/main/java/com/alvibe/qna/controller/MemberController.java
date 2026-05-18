@@ -1,4 +1,5 @@
 package com.alvibe.qna.controller;
+
 import com.alvibe.qna.dto.LoginFormDto;
 import com.alvibe.qna.dto.MemberSignupDto;
 import com.alvibe.qna.service.MemberService;
@@ -31,6 +32,17 @@ public class MemberController {
         if(bindingResult.hasErrors()){
             return "member/signup";
         }
+        if(memberService.existsByEmail(memberSignupDto.getEmail())){
+            bindingResult.rejectValue("email", "duplicated", "이미 사용 중인 이메일입니다.");
+        }
+        if(memberService.existsByNickname(memberSignupDto.getNickname())){
+            bindingResult.rejectValue("nickname", "duplicated", "이미 사용 중인 닉네임입니다.");
+        }
+
+        if(bindingResult.hasErrors()){
+            return "member/signup";
+        }
+
         memberService.signup(memberSignupDto);
         return "redirect:/member/login";
     }
