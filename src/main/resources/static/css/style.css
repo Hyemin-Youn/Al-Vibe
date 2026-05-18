@@ -1,0 +1,87 @@
+/* ── 공통 ── */
+:root {
+    --orange: #ea580c;
+    --orange-dark: #c2410c;
+    --orange-light: #fff7ed;
+}
+
+body {
+    font-family: -apple-system, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+    background: #f9fafb;
+    color: #111827;
+}
+
+/* ── 네비게이션바 ── */
+.navbar {
+    background: #fff;
+    border-bottom: 1px solid #e5e7eb;
+    box-shadow: 0 1px 3px rgba(0,0,0,.05);
+}
+
+.navbar-brand {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--orange) !important;
+    letter-spacing: -.5px;
+}
+
+.nav-link {
+    font-size: 14px;
+    color: #6b7280 !important;
+    padding: 0 14px !important;
+}
+
+.nav-link:hover {
+    color: var(--orange) !important;
+}
+
+.btn-primary {
+    background: var(--orange);
+    border-color: var(--orange);
+}
+
+.btn-primary:hover {
+    background: var(--orange-dark);
+    border-color: var(--orange-dark);
+}
+
+/* ── 푸터 ── */
+.footer {
+    background: #fff;
+    border-top: 1px solid #e5e7eb;
+    font-size: 13px;
+    color: #9ca3af;
+}
+
+.footer-logo {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--orange);
+}
+
+.footer-links {
+    display: flex;
+    gap: 20px;
+}
+
+.footer-links a {
+    color: #9ca3af;
+    text-decoration: none;
+}
+
+.footer-links a:hover {
+    color: #374151;
+}
+
+/* ── 카드 ── */
+.card {
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+}
+
+/* ── 버튼 ── */
+.btn {
+    border-radius: 7px;
+    font-size: 13px;
+    font-weight: 500;
+}
