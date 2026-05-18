@@ -1,10 +1,65 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/springsecurity6"
+      th:replace="~{layout/base :: base(~{::content})}">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <title>알바이브 - 메인</title>
 </head>
 <body>
 
+<th:block th:fragment="content">
+    <div class="container py-4">
+
+        <!-- 히어로 검색 -->
+        <div class="text-center py-5 mb-4">
+            <h2 class="fw-bold mb-3">알바 관련 무엇이든 물어보세요</h2>
+            <form th:action="@{/questions}" method="get" class="d-flex justify-content-center gap-2">
+                <select name="searchType" class="form-select w-auto">
+                    <option value="all">제목+내용</option>
+                    <option value="title">제목</option>
+                    <option value="content">내용</option>
+                </select>
+                <input type="text" name="keyword" class="form-control" style="width:400px"
+                       placeholder="궁금한 것을 검색해보세요">
+                <button type="submit" class="btn btn-primary px-4">검색</button>
+            </form>
+        </div>
+
+        <div class="row">
+            <!-- 질문 목록 -->
+            <div class="col-9">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-muted">최근 질문</span>
+                    <a th:href="@{/questions}" class="btn btn-primary btn-sm">+ 질문하기</a>
+                </div>
+                <div class="card p-3">
+                    <p class="text-muted text-center py-4">질문 목록이 여기에 표시됩니다</p>
+                </div>
+            </div>
+
+            <!-- 사이드바 -->
+            <div class="col-3">
+                <div class="card p-3 mb-3">
+                    <h6 class="fw-bold mb-3">카테고리</h6>
+                    <ul class="list-unstyled mb-0">
+                        <li class="py-1 border-bottom"><a th:href="@{/questions}" class="text-decoration-none text-secondary">전체</a></li>
+                        <li class="py-1 border-bottom"><a th:href="@{/questions(category=food)}" class="text-decoration-none text-secondary">외식/음식점</a></li>
+                        <li class="py-1 border-bottom"><a th:href="@{/questions(category=service)}" class="text-decoration-none text-secondary">서비스/판매</a></li>
+                        <li class="py-1 border-bottom"><a th:href="@{/questions(category=delivery)}" class="text-decoration-none text-secondary">배달/운전</a></li>
+                        <li class="py-1 border-bottom"><a th:href="@{/questions(category=edu)}" class="text-decoration-none text-secondary">교육</a></li>
+                        <li class="py-1"><a th:href="@{/questions(category=free)}" class="text-decoration-none text-secondary">자유게시판</a></li>
+                    </ul>
+                </div>
+                <div class="card p-3" style="background:var(--orange-light);border-color:#fed7aa">
+                    <p class="fw-bold mb-2" style="color:#c2410c">첫 질문 작성하기</p>
+                    <p class="small mb-3" style="color:#c2410c">궁금한 게 있으신가요?</p>
+                    <a th:href="@{/questions/form}" class="btn btn-primary btn-sm w-100">질문 작성하기</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</th:block>
+
 </body>
-</html>
+</html>r

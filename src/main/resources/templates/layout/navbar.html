@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/springsecurity6">
+<body>
+
+<nav th:fragment="navbar" class="navbar navbar-expand-lg">
+    <div class="container">
+        <a class="navbar-brand" th:href="@{/}">알바이브</a>
+
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/questions}">전체</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/questions?category=food}">외식/음식점</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/questions?category=service}">서비스/판매</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/questions?category=delivery}">배달/운전</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/questions?category=edu}">교육</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/questions?category=free}">자유게시판</a>
+                </li>
+            </ul>
+
+            <ul class="navbar-nav ms-auto align-items-center">
+                <!-- 비로그인 -->
+                <li class="nav-item" sec:authorize="isAnonymous()">
+                    <a class="nav-link" th:href="@{/members/login}">로그인</a>
+                </li>
+                <li class="nav-item" sec:authorize="isAnonymous()">
+                    <a class="btn btn-primary btn-sm" th:href="@{/members/signup}">회원가입</a>
+                </li>
+
+                <!-- 로그인 후 -->
+                <li class="nav-item" sec:authorize="isAuthenticated()">
+                    <a class="nav-link" th:href="@{/members/mypage}">
+                        <span sec:authentication="name"></span> 님
+                    </a>
+                </li>
+                <li class="nav-item" sec:authorize="isAuthenticated()">
+                    <form th:action="@{/logout}" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-outline-secondary btn-sm">로그아웃</button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+</body>
+</html>
