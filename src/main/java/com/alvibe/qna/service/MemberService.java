@@ -3,6 +3,7 @@ package com.alvibe.qna.service;
 import com.alvibe.qna.dto.MemberSignupDto;
 import com.alvibe.qna.entity.Member;
 import com.alvibe.qna.entity.MemberRole;
+import com.alvibe.qna.entity.MemberStatus;
 import com.alvibe.qna.repository.MemberRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,7 @@ public class MemberService implements UserDetailsService {
                 .password((passwordEncoder.encode(memberSignupDto.getPassword())))
                 .nickname(memberSignupDto.getNickname())
                 .role(MemberRole.USER)
+                .status(MemberStatus.ACTIVE)
                 .build();
 
         return memberRepository.save(member);
