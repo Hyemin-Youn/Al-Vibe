@@ -23,12 +23,12 @@ public class AnswerService {
     private final MemberRepository memberRepository;
 
 
-    // 1. 특정 질문에 대한 답변 목록 조회
+    //특정 질문에 대한 답변 목록 조회
     public List<Answer> getAnswersByQuestionId(Long questionId) {
         return answerRepository.findAnswersByQuestionIdWithFilter(questionId);
     }
 
-    // 2. 답변 작성
+    //답변 작성
     public Long createAnswer(Long questionId, AnswerFormDto dto, Long memberId) {
         Question question = questionRepository.findById(questionId)
                 .orElseThrow(() -> new IllegalArgumentException("질문을 찾을 수 없습니다. id=" + questionId));
@@ -45,7 +45,7 @@ public class AnswerService {
         return saved.getId();
     }
 
-    // 3. 답변 수정용 데이터 가져오기
+    //답변 수정용 데이터 가져오기
     public AnswerFormDto getAnswerForm(Long answerId) {
         Answer answer = answerRepository.findById(answerId)
                 .orElseThrow(() -> new IllegalArgumentException("답변을 찾을 수 없습니다. id=" + answerId));
@@ -55,7 +55,7 @@ public class AnswerService {
         return dto;
     }
 
-    // 4. 답변 수정
+    //답변 수정
     public void updateAnswer(Long answerId, AnswerFormDto dto, Long memberId) {
         Answer answer = answerRepository.findById(answerId)
                 .orElseThrow(() -> new IllegalArgumentException("답변을 찾을 수 없습니다. id=" + answerId));
@@ -67,7 +67,7 @@ public class AnswerService {
         answer.setContent(dto.getContent());
     }
 
-    // 5. 답변 삭제
+    //답변 삭제
     public void deleteAnswer(Long answerId, Long memberId) {
         Answer answer = answerRepository.findById(answerId)
                 .orElseThrow(() -> new IllegalArgumentException("답변을 찾을 수 없습니다. id=" + answerId));
@@ -79,14 +79,14 @@ public class AnswerService {
         answer.setDeleted(true);
     }
 
-    // 6. 답변이 속한 questionId 조회
+    //답변이 속한 questionId 조회
     public Long getQuestionIdByAnswerId(Long answerId) {
         Answer answer = answerRepository.findById(answerId)
                 .orElseThrow(() -> new IllegalArgumentException("답변을 찾을 수 없습니다. id=" + answerId));
         return answer.getQuestion().getId();
     }
 
-    // 7. 채택 처리
+    //채택 처리
     public void adoptAnswer(Long answerId, Long memberId) {
         Answer answer = answerRepository.findById(answerId)
                 .orElseThrow(() -> new IllegalArgumentException("답변을 찾을 수 없습니다. id=" + answerId));
@@ -105,7 +105,7 @@ public class AnswerService {
         answer.setSelected(true);
     }
 
-    // 8. 채택된 답변 1개 조회
+    //채택된 답변 1개 조회
     public Answer getAdoptedAnswer(Long questionId) {
         return answerRepository.findAnswersByQuestionIdWithFilter(questionId)
                 .stream()
@@ -114,7 +114,7 @@ public class AnswerService {
                 .orElse(null);
     }
 
-    // 9. 채택 취소
+    //채택 취소
     public void cancelAdopt(Long answerId, Long memberId) {
         Answer answer = answerRepository.findById(answerId)
                 .orElseThrow(() -> new IllegalArgumentException("답변을 찾을 수 없습니다. id=" + answerId));
@@ -125,4 +125,34 @@ public class AnswerService {
 
         answer.setSelected(false);
     }
+
+    //대댓글 작성
+    public Long createComment(Long parentAnswerId, AnswerFormDto dto, Long memberId) {
+        Answer parentAnswer = answerRepository.findById(parentAnswerId)
+                .orElseThrow(() -> new IllegalArgumentException("답변을 찾을 수 없습니다. id=" + parentAnswerId));
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다. id=" + memberId));
+
+        Answer comment = new Answer();
+        comment.setQuestion(parentAnswer.getQuestion());
+        comment.setMember(member);
+        comment.setContent(dto.getContent());
+        comment.setParent(parentAnswer);
+
+        return answerRepository.save(comment).getId();
+    }
+
+    //대댓글 삭제
+    public void deleteComment(Long commentId, Long memberId) {
+        Answer comment = answerRepository.findById(commentId)
+                .orElseThrow(() -> new IllegalArgumentException("대댓글을 찾을 수 없습니다. id=" + commentId));
+
+        if (!comment.getMember().getId().equals(memberId)) {
+            throw new IllegalStateException("작성자만 삭제할 수 있습니다.");
+        }
+
+        comment.setDeleted(true);
+    }
+
 }

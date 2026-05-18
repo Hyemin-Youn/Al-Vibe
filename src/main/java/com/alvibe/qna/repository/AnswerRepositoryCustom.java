@@ -6,4 +6,5 @@ import java.util.List;
 public interface AnswerRepositoryCustom {
 
     List<Answer> findAnswersByQuestionIdWithFilter(Long questionId);
+    List<Answer> findCommentsByParentId(Long parentId);
 }

@@ -39,9 +39,21 @@ public class QuestionController {
     public String detail(@PathVariable Long id, Model model, @AuthenticationPrincipal UserDetails userDetails) {
         Question question = questionService.getQuestionDetail(id);
         model.addAttribute("question", question);
+
+        boolean isAuthor = false;
+        if (userDetails != null) {
+            isAuthor = userDetails.getUsername().equals(question.getMember().getEmail());
+        }
+        model.addAttribute("isAuthor", isAuthor);
+
         // detail.html에서 답변 영역 추가
-        model.addAttribute("answerFormDto", new AnswerFormDto());
         model.addAttribute("questionId", id);
+        model.addAttribute("answerFormDto", new AnswerFormDto());
+        // 병합 후 아래 3줄 삭제 필요
+        model.addAttribute("answers", answerService.getAnswersByQuestionId(id));
+        model.addAttribute("adoptedAnswer", answerService.getAdoptedAnswer(id));
+        model.addAttribute("sessionMemberId", 2L);  // 임시 하드코딩
+
 
         return "question/detail";
     }
@@ -70,11 +82,23 @@ public class QuestionController {
 
     // 수정 폼 가져오기
     @GetMapping("/edit/{id}")
-    public String editForm(@PathVariable Long id, Model model) {
+    public String editForm(@PathVariable Long id,
+                           @AuthenticationPrincipal UserDetails userDetails,
+                           Model model) {
+
+        if (userDetails == null) {
+            return "redirect:/member/login";
+        }
+
+        Long memberId = memberRepository.findByEmail(userDetails.getUsername())
+                .orElseThrow(() -> new IllegalStateException("로그인 정보 오류"))
+                .getId();
+
         QuestionFormDto dto = questionService.getQuestionForm(id);
+
         model.addAttribute("questionFormDto", dto);
         model.addAttribute("categories", questionService.getAllCategories());
-        model.addAttribute("questionId", id);   // 폼 action 에서 사용
+        model.addAttribute("questionId", id);
         return "question/edit";
     }
 
@@ -97,8 +121,15 @@ public class QuestionController {
     }
 
     @PostMapping("/delete/{id}")
-    public String delete(@PathVariable Long id) {
-        Long memberId = 1L;   // TODO: Security 적용 후 실제 로그인 유저로
+    public String delete(@PathVariable Long id,
+                         @AuthenticationPrincipal UserDetails userDetails) {
+        if (userDetails == null) {
+            return "redirect:/member/login";
+        }
+
+        Long memberId = memberRepository.findByEmail(userDetails.getUsername())
+                .orElseThrow(() -> new IllegalStateException("로그인 정보 오류"))
+                .getId();
 
         questionService.deleteQuestion(id, memberId);
         return "redirect:/questions/list";

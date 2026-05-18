@@ -25,4 +25,18 @@ public class AnswerRepositoryCustomImpl implements AnswerRepositoryCustom {
                 .orderBy(answer.createdAt.desc())
                 .fetch();
     }
+
+    @Override
+    public List<Answer> findCommentsByParentId(Long parentId) {
+        QAnswer answer = QAnswer.answer;
+
+        return queryFactory
+                .selectFrom(answer)
+                .where(
+                        answer.parent().id.eq(parentId),
+                        answer.isDeleted.isFalse()
+                )
+                .orderBy(answer.createdAt.asc())
+                .fetch();
+    }
 }

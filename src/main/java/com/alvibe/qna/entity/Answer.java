@@ -1,15 +1,20 @@
 package com.alvibe.qna.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "answers")
-@Data
+@Getter
+@Setter
+@ToString(exclude = {"parent", "children"})
+@EqualsAndHashCode(exclude = {"parent", "children"})
 public class Answer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,6 +31,9 @@ public class Answer {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
     private Answer parent;
+
+    @OneToMany(mappedBy = "parent")
+    private List<Answer> children = new ArrayList<>();
 
     @Column(columnDefinition = "TEXT")
     private String content;

@@ -24,10 +24,17 @@ public class AnswerController {
     private final AnswerService answerService;
     private final MemberRepository memberRepository;
 
+    /*
     private Long getMemberId(UserDetails userDetails) {
         return memberRepository.findByEmail(userDetails.getUsername())
                 .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다."))
                 .getId();
+    }
+     */
+
+    // 임시 하드코딩
+    private Long getMemberId(UserDetails userDetails) {
+        return 2L;
     }
 
     // 답변 작성
@@ -39,7 +46,7 @@ public class AnswerController {
             @AuthenticationPrincipal UserDetails userDetails,
             RedirectAttributes redirectAttributes) {
 
-        if (userDetails == null) return "redirect:/member/login";
+        //if (userDetails == null) return "redirect:/member/login";
 
         if (bindingResult.hasErrors()) {
             redirectAttributes.addFlashAttribute("answerError",
@@ -63,12 +70,17 @@ public class AnswerController {
         model.addAttribute("adoptedAnswer", answerService.getAdoptedAnswer(qid));
         model.addAttribute("answerFormDto", new AnswerFormDto());
 
+        // 임시 하드코딩
+        model.addAttribute("sessionMemberId", 2L);
+
+        /*
         if (userDetails != null) {
             Long memberId = getMemberId(userDetails);
             model.addAttribute("sessionMemberId", memberId);
         } else {
             model.addAttribute("sessionMemberId", null);
         }
+         */
 
         return "answer/list :: answerSection";
     }
@@ -145,6 +157,48 @@ public class AnswerController {
         }
 
         Long questionId = answerService.getQuestionIdByAnswerId(id);
+        return "redirect:/questions/detail/" + questionId;
+    }
+
+    // 대댓글 작성
+    @PostMapping("/answers/{id}/comments")
+    public String createComment(
+            @PathVariable Long id,
+            @ModelAttribute AnswerFormDto dto,
+            @AuthenticationPrincipal UserDetails userDetails,
+            RedirectAttributes redirectAttributes) {
+
+        if (userDetails == null) return "redirect:/member/login";
+
+        if (dto.getContent() == null || dto.getContent().trim().length() < 5) {
+            redirectAttributes.addFlashAttribute("answerError", "대댓글은 5자 이상 입력해주세요.");
+            Long questionId = answerService.getQuestionIdByAnswerId(id);
+            return "redirect:/questions/detail/" + questionId;
+        }
+
+        answerService.createComment(id, dto, getMemberId(userDetails));
+
+        Long questionId = answerService.getQuestionIdByAnswerId(id);
+        return "redirect:/questions/detail/" + questionId;
+    }
+
+    // 대댓글 삭제
+    @PostMapping("/comments/{id}/delete")
+    public String deleteComment(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetails userDetails,
+            RedirectAttributes redirectAttributes) {
+
+        if (userDetails == null) return "redirect:/member/login";
+
+        Long questionId = answerService.getQuestionIdByAnswerId(id);
+
+        try {
+            answerService.deleteComment(id, getMemberId(userDetails));
+        } catch (IllegalStateException e) {
+            redirectAttributes.addFlashAttribute("answerError", e.getMessage());
+        }
+
         return "redirect:/questions/detail/" + questionId;
     }
 }
