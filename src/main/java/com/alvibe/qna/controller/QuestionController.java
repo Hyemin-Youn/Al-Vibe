@@ -25,13 +25,21 @@ import java.util.List;
 
 @Controller
 @RequestMapping("/questions")
-@RequiredArgsConstructor
 public class QuestionController {
     private final QuestionService questionService;
     private final MemberRepository memberRepository;
+    private final AnswerService answerService;
+
+    public QuestionController(QuestionService questionService,
+                              MemberRepository memberRepository,
+                              AnswerService answerService) {
+        this.questionService = questionService;
+        this.memberRepository = memberRepository;
+        this.answerService = answerService;
+    }
 
     @GetMapping("/list")
-    public String list(Model model,
+    public String list(@RequestParam(required = false) Integer categoryId, Model model,
                        @RequestParam(value="page", defaultValue = "0") int page,
                        @RequestParam(value="keyword", defaultValue = "") String keyword,
                        @RequestParam(value="sort", defaultValue = "latest") String sort) {
@@ -45,13 +53,18 @@ public class QuestionController {
         model.addAttribute("sort", sort);
 //        model.addAttribute("popularQuestion", popularQuestions);
 
+        // 임시 카테고리 아이콘 생성
+        model.addAttribute("categories", questionService.getAllCategories());
+        model.addAttribute("currentCategoryId", categoryId);
+
         return "question/list";
     }
 
     @GetMapping("/detail/{id}")
-    public String detail(@PathVariable Long id, Model model, HttpSession session
-            , @AuthenticationPrincipal UserDetails userDetails) {
-        Question question = questionService.getQuestionDetail(id, session);
+    public String detail(@PathVariable Long id,
+                         @AuthenticationPrincipal UserDetails userDetails,
+                         Model model) {
+        Question question = questionService.getQuestionDetail(id);
         model.addAttribute("question", question);
 
         boolean isAuthor = false;
@@ -63,10 +76,16 @@ public class QuestionController {
         // detail.html에서 답변 영역 추가
         model.addAttribute("questionId", id);
         model.addAttribute("answerFormDto", new AnswerFormDto());
-        // // 병합 후 아래 3줄 삭제 필요
-        // model.addAttribute("answers", answerService.getAnswersByQuestionId(id));
-        // model.addAttribute("adoptedAnswer", answerService.getAdoptedAnswer(id));
-        // model.addAttribute("sessionMemberId", 2L); // 임시 하드코딩
+        model.addAttribute("answers", answerService.getAnswersByQuestionId(id));
+        model.addAttribute("adoptedAnswer", answerService.getAdoptedAnswer(id));
+
+        if (userDetails != null) {
+            Long memberId = memberRepository.findByEmail(userDetails.getUsername())
+                    .orElseThrow().getId();
+            model.addAttribute("sessionMemberId", memberId);
+        } else {
+            model.addAttribute("sessionMemberId", null);
+        }
 
         return "question/detail";
     }
@@ -80,14 +99,17 @@ public class QuestionController {
 
     @PostMapping("/new")
     public String create(@Valid @ModelAttribute QuestionFormDto questionFormDto,
-            BindingResult bindingResult,
-            Model model) {
+                         BindingResult bindingResult,
+                         @AuthenticationPrincipal UserDetails userDetails,
+                         Model model) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("categories", questionService.getAllCategories());
             return "question/form";
         }
 
-        Long memberId = 1L; // 임시 테스트 유저
+        Long memberId = memberRepository.findByEmail(userDetails.getUsername())
+                .orElseThrow(() -> new IllegalStateException("로그인 정보 오류"))
+                .getId();
 
         Long savedId = questionService.createQuestion(questionFormDto, memberId);
         return "redirect:/questions/detail/" + savedId;
@@ -96,8 +118,8 @@ public class QuestionController {
     // 수정 폼 가져오기
     @GetMapping("/edit/{id}")
     public String editForm(@PathVariable Long id,
-            @AuthenticationPrincipal UserDetails userDetails,
-            Model model) {
+                           @AuthenticationPrincipal UserDetails userDetails,
+                           Model model) {
 
         if (userDetails == null) {
             return "redirect:/member/login";
@@ -118,16 +140,19 @@ public class QuestionController {
     // 수정 처리
     @PostMapping("/edit/{id}")
     public String edit(@PathVariable Long id,
-            @Valid @ModelAttribute QuestionFormDto questionFormDto,
-            BindingResult bindingResult,
-            Model model) {
+                       @Valid @ModelAttribute QuestionFormDto questionFormDto,
+                       @AuthenticationPrincipal UserDetails userDetails,
+                       BindingResult bindingResult,
+                       Model model) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("categories", questionService.getAllCategories());
             model.addAttribute("questionId", id);
             return "question/edit";
         }
 
-        Long memberId = 1L; // 임시로 id 1번 유저 강제
+        Long memberId = memberRepository.findByEmail(userDetails.getUsername())
+                .orElseThrow(() -> new IllegalStateException("로그인 정보 오류"))
+                .getId();
 
         questionService.updateQuestion(id, questionFormDto, memberId);
         return "redirect:/questions/detail/" + id;
@@ -135,7 +160,7 @@ public class QuestionController {
 
     @PostMapping("/delete/{id}")
     public String delete(@PathVariable Long id,
-            @AuthenticationPrincipal UserDetails userDetails) {
+                         @AuthenticationPrincipal UserDetails userDetails) {
         if (userDetails == null) {
             return "redirect:/member/login";
         }

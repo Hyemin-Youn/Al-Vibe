@@ -73,8 +73,18 @@
 
         <div class="d-flex justify-content-between align-items-start">
             <div class="fw-semibold" th:text="${answer.member.nickname}">닉네임</div>
-            <div class="text-muted small"
-                 th:text="${#temporals.format(answer.createdAt, 'yyyy-MM-dd HH:mm')}">날짜</div>
+            <div class="d-flex align-items-center gap-2">
+                <div class="text-muted small"
+                     th:text="${#temporals.format(answer.createdAt, 'yyyy-MM-dd HH:mm')}">날짜</div>
+                <!-- 신고 버튼 추가 (타인 답변 + 로그인 시에만) -->
+                <button th:if="${sessionMemberId != null and answer.member.id != sessionMemberId}"
+                        type="button"
+                        class="btn btn-sm btn-danger"
+                        style="font-size:11px; padding: 2px 8px;"
+                        th:attr="onclick='openReportModal(' + ${answer.id} + ')'">
+                    신고
+                </button>
+            </div>
         </div>
 
         <div class="mt-2 answer-content" style="white-space: pre-wrap;"
@@ -115,12 +125,23 @@
         <div th:if="${not #lists.isEmpty(answer.children)}"
              class="mt-3 ms-4 border-start ps-3">
             <div th:each="comment : ${answer.children}" class="mb-2">
-                <div class="d-flex justify-content-between">
-                    <span class="fw-semibold small"
-                          th:text="${comment.member.nickname}">닉네임</span>
-                    <span class="text-muted small"
-                          th:text="${#temporals.format(comment.createdAt, 'yyyy-MM-dd HH:mm')}">날짜</span>
+                <div class="d-flex justify-content-between align-items-center">
+    <span class="fw-semibold small"
+          th:text="${comment.member.nickname}">닉네임</span>
+                    <div class="d-flex align-items-center gap-2">
+        <span class="text-muted small"
+              th:text="${#temporals.format(comment.createdAt, 'yyyy-MM-dd HH:mm')}">날짜</span>
+                        <!-- 대댓글 신고 버튼 -->
+                        <button th:if="${sessionMemberId != null and comment.member.id != sessionMemberId}"
+                                type="button"
+                                class="btn btn-sm btn-danger"
+                                style="font-size:11px; padding: 2px 8px;"
+                                th:attr="onclick='openReportModal(' + ${comment.id} + ')'">
+                            신고
+                        </button>
+                    </div>
                 </div>
+
                 <div class="small mt-1" style="white-space: pre-wrap;"
                      th:text="${comment.content}">대댓글 내용</div>
 
@@ -158,6 +179,65 @@
                             class="btn btn-sm btn-primary text-nowrap">등록</button>
                     <button type="button"
                             class="btn btn-sm btn-outline-secondary text-nowrap comment-cancel-btn">취소</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 신고 모달 추가 -->
+    <div class="modal fade" id="reportModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">답변 신고</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="reportForm" method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">
+                                신고 유형 <span class="text-danger">*</span>
+                            </label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio"
+                                       name="reasonCategory" value="INAPPROPRIATE" required>
+                                <label class="form-check-label">욕설 / 비방</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio"
+                                       name="reasonCategory" value="SPAM">
+                                <label class="form-check-label">스팸 / 광고</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio"
+                                       name="reasonCategory" value="WRONG_INFO">
+                                <label class="form-check-label">잘못된 정보</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio"
+                                       name="reasonCategory" value="ILLEGAL">
+                                <label class="form-check-label">불법 내용</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio"
+                                       name="reasonCategory" value="OTHER">
+                                <label class="form-check-label">기타</label>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">
+                                상세 사유 <span class="text-muted">(선택)</span>
+                            </label>
+                            <textarea name="reason" class="form-control" rows="3"
+                                      placeholder="추가 설명을 입력하세요"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary"
+                                data-bs-dismiss="modal">취소</button>
+                        <button type="submit" class="btn btn-danger">신고하기</button>
+                    </div>
                 </form>
             </div>
         </div>
@@ -204,6 +284,12 @@
             form.querySelector('input').value = '';
         });
     });
+
+    // 신고 모달 열기
+    function openReportModal(answerId) {
+        document.getElementById('reportForm').action = '/answers/' + answerId + '/report';
+        new bootstrap.Modal(document.getElementById('reportModal')).show();
+    }
 
 </script>
 

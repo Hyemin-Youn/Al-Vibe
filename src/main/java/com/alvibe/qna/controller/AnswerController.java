@@ -24,17 +24,10 @@ public class AnswerController {
     private final AnswerService answerService;
     private final MemberRepository memberRepository;
 
-    /*
     private Long getMemberId(UserDetails userDetails) {
         return memberRepository.findByEmail(userDetails.getUsername())
                 .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다."))
                 .getId();
-    }
-     */
-
-    // 임시 하드코딩
-    private Long getMemberId(UserDetails userDetails) {
-        return 2L;
     }
 
     // 답변 작성
@@ -46,7 +39,7 @@ public class AnswerController {
             @AuthenticationPrincipal UserDetails userDetails,
             RedirectAttributes redirectAttributes) {
 
-        //if (userDetails == null) return "redirect:/member/login";
+        if (userDetails == null) return "redirect:/member/login";
 
         if (bindingResult.hasErrors()) {
             redirectAttributes.addFlashAttribute("answerError",
@@ -70,17 +63,12 @@ public class AnswerController {
         model.addAttribute("adoptedAnswer", answerService.getAdoptedAnswer(qid));
         model.addAttribute("answerFormDto", new AnswerFormDto());
 
-        // 임시 하드코딩
-        model.addAttribute("sessionMemberId", 2L);
-
-        /*
         if (userDetails != null) {
             Long memberId = getMemberId(userDetails);
             model.addAttribute("sessionMemberId", memberId);
         } else {
             model.addAttribute("sessionMemberId", null);
         }
-         */
 
         return "answer/list :: answerSection";
     }
