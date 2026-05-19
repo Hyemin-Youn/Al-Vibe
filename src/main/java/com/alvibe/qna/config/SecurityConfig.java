@@ -21,12 +21,12 @@ public class SecurityConfig {
                         .loginPage("/members/login")             // 커스텀 로그인 페이지 경로 설정
                         .loginProcessingUrl("/members/login")
                         .usernameParameter("email")
-                        .defaultSuccessUrl("/", true) // 로그인 성공 시 이동할 기본 경로
+                        .defaultSuccessUrl("/index", true) // 로그인 성공 시 이동할 기본 경로
                         .permitAll()                     // 로그인 페이지 접근은 모두에게 허용
                 )
 
                 .logout(logout -> logout
-                        .logoutSuccessUrl("/")      // 로그아웃 성공 후 리다이렉트 경로
+                        .logoutSuccessUrl("/member/login")      // 로그아웃 성공 후 리다이렉트 경로
                         .permitAll()                     // 로그아웃 기능은 모두에게 허용
                 );
 
