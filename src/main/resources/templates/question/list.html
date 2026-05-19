@@ -27,6 +27,8 @@
                            class="btn btn-sm" th:classappend="${sort == 'latest' or sort == null} ? 'btn-primary' : 'btn-outline-secondary'">최신순</a>
                         <a th:href="@{/questions/list(sort='view',keyword=${keyword})}"
                            class="btn btn-sm" th:classappend="${sort == 'view'} ? 'btn-primary' : 'btn-outline-secondary'">조회수순</a>
+                        <a th:href="@{/questions/list(sort='unanswered',keyword=${keyword})}"
+                           class="btn btn-sm" th:classappend="${sort == 'unanswered'} ? 'btn-primary' : 'btn-outline-secondary'">미답변순</a>
                     </div>
                     <a href="/questions/new" class="btn btn-primary btn-sm">+ 질문하기</a>
                 </div>

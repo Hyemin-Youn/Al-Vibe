@@ -25,7 +25,7 @@ public class QuestionService {
     private final CategoryRepository categoryRepository;
 
     public QuestionService(QuestionRepository questionRepository, MemberRepository memberRepository,
-                           CategoryRepository categoryRepository){
+                           CategoryRepository categoryRepository) {
         this.questionRepository = questionRepository;
         this.memberRepository = memberRepository;
         this.categoryRepository = categoryRepository;
@@ -127,13 +127,13 @@ public class QuestionService {
             );
         };
 
-        //        if(sort.equals("unanswered")) {
-//            if(keyword.isEmpty()) {
-//                return questionRepository.findByAnswersEmpty(pageable);
-//            }
-//
-//            return questionRepository.findByTitleContainingAndAnswersEmpty(keyword, pageable);
-//        }
+        if (sort.equals("unanswered")) {
+            if (keyword.isEmpty()) {
+                return questionRepository.findByAnswersEmpty(pageable);
+            }
+
+            return questionRepository.findByTitleContainingAndAnswersEmpty(keyword, pageable);
+        }
 
         if(keyword.isEmpty()) {
             return questionRepository.findAll(pageable);

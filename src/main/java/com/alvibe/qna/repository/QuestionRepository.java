@@ -16,10 +16,14 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
     List<Question> findByIsDeletedFalseOrderByCreatedAtDesc();
 
     // 미답변 검색
-//    Page<Question> findByAnswersEmpty(Pageable pageable);
+    Page<Question> findByAnswersEmpty(Pageable pageable);
 
     // 제목 검색
     Page<Question> findByTitleContaining(String keyword, Pageable pageable);
+
+    Page<Question> findByContentContaining(String keyword, Pageable pageable);
+
+    Page<Question> findByTitleContainingOrContentContaining(String keyword, String content, Pageable pageable);
 
     // 세션 비교 -> 조회수 증가
     @Modifying
@@ -33,5 +37,5 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
 //    List<Question> findTop5ByOrderByLikeCountDesc();
 
     // 미답변 검색
-//    Page<Question> findByTitleContainingAndAnswersEmpty(String keyword, Pageable pageable);
+    Page<Question> findByTitleContainingAndAnswersEmpty(String keyword, Pageable pageable);
 }
