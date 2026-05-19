@@ -6,11 +6,8 @@ import com.alvibe.qna.entity.Category;
 import com.alvibe.qna.entity.Member;
 import com.alvibe.qna.entity.Question;
 import com.alvibe.qna.repository.MemberRepository;
-import com.alvibe.qna.service.AnswerService;
 import com.alvibe.qna.service.QuestionService;
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -22,43 +19,31 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @Controller
 @RequestMapping("/questions")
 public class QuestionController {
     private final QuestionService questionService;
     private final MemberRepository memberRepository;
-    private final AnswerService answerService;
 
-    public QuestionController(QuestionService questionService,
-                              MemberRepository memberRepository,
-                              AnswerService answerService) {
+    public QuestionController(QuestionService questionService, MemberRepository memberRepository){
         this.questionService = questionService;
         this.memberRepository = memberRepository;
-        this.answerService = answerService;
     }
 
     @GetMapping("/list")
     public String list(@RequestParam(required = false) Integer categoryId, Model model,
                        @RequestParam(value="page", defaultValue = "0") int page,
                        @RequestParam(value="keyword", defaultValue = "") String keyword,
-                       @RequestParam(value="sort", defaultValue = "latest") String sort,
-                       @RequestParam(value="searchType", defaultValue = "title") String searchType,
-                       @RequestParam(value="category", required=false) String categoryName) {
+                       @RequestParam(value="sort", defaultValue = "latest") String sort) {
 
-        Page<Question> questionPage = questionService.getQuestionPage(page, keyword, sort, searchType, categoryName);
+        Page<Question> questionPage = questionService.getQuestionPage(page, keyword, sort);
+
+//        List<Question> popularQuestions = questionService.getPopularQuestions();
 
         model.addAttribute("questionPage", questionPage);
         model.addAttribute("keyword", keyword);
         model.addAttribute("sort", sort);
-        model.addAttribute("searchType", searchType);
-        model.addAttribute("category", categoryName);
-
-        // 임시 카테고리 아이콘 생성
-        model.addAttribute("categories", questionService.getAllCategories());
-        model.addAttribute("currentCategoryId", categoryId);
-
+//        model.addAttribute("popularQuestion", popularQuestions);
         return "question/list";
     }
 
@@ -78,16 +63,10 @@ public class QuestionController {
         // detail.html에서 답변 영역 추가
         model.addAttribute("questionId", id);
         model.addAttribute("answerFormDto", new AnswerFormDto());
-        model.addAttribute("answers", answerService.getAnswersByQuestionId(id));
-        model.addAttribute("adoptedAnswer", answerService.getAdoptedAnswer(id));
-
-        if (userDetails != null) {
-            Long memberId = memberRepository.findByEmail(userDetails.getUsername())
-                    .orElseThrow().getId();
-            model.addAttribute("sessionMemberId", memberId);
-        } else {
-            model.addAttribute("sessionMemberId", null);
-        }
+        // // 병합 후 아래 3줄 삭제 필요
+        // model.addAttribute("answers", answerService.getAnswersByQuestionId(id));
+        // model.addAttribute("adoptedAnswer", answerService.getAdoptedAnswer(id));
+        // model.addAttribute("sessionMemberId", 2L); // 임시 하드코딩
 
         return "question/detail";
     }
@@ -120,8 +99,8 @@ public class QuestionController {
     // 수정 폼 가져오기
     @GetMapping("/edit/{id}")
     public String editForm(@PathVariable Long id,
-                           @AuthenticationPrincipal UserDetails userDetails,
-                           Model model) {
+            @AuthenticationPrincipal UserDetails userDetails,
+            Model model) {
 
         if (userDetails == null) {
             return "redirect:/member/login";
@@ -162,7 +141,7 @@ public class QuestionController {
 
     @PostMapping("/delete/{id}")
     public String delete(@PathVariable Long id,
-                         @AuthenticationPrincipal UserDetails userDetails) {
+            @AuthenticationPrincipal UserDetails userDetails) {
         if (userDetails == null) {
             return "redirect:/member/login";
         }
