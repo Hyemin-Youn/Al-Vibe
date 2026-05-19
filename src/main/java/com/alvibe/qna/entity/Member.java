@@ -33,8 +33,12 @@ public class Member extends BaseTimeEntity {
 
     private int sanctionsCount = 0;
 
+    public void updateProfile(String nickname, String email){
+        this.nickname = nickname;
+        this.email = email;
+    }
 
-    public void changeToEncodedPassword(String encodedPassword){
+    public void changePassword(String encodedPassword){
         this.password = encodedPassword;
     }
 }
