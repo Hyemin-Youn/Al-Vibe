@@ -20,6 +20,7 @@ public class AnswerRepositoryCustomImpl implements AnswerRepositoryCustom {
                 .selectFrom(answer)
                 .where(
                         answer.question().id.eq(questionId),
+                        answer.parent().isNull(),
                         answer.isDeleted.isFalse()
                 )
                 .orderBy(answer.createdAt.desc())
