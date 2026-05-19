@@ -141,17 +141,17 @@ CREATE TABLE notices (
 
 -- 신고(reports) 테이블 생성
 CREATE TABLE reports (
-	id BIGINT AUTO_INCREMENT,																# 식별자[PK]
-    reporter_id BIGINT NOT NULL,															# 신고자[FK]
-    target_question_id BIGINT NULL,															# 신고 대상: 질문[FK]
-    target_answer_id BIGINT NULL,															# 신고 대상: 답변[FK]
-    target_member_id BIGINT NULL,															# 신고 대상: 회원[FK]
-    reason_category ENUM('SPAM', 'INAPPROPRIATE', 'ILLEGAL', 'OTHER') NOT NULL,				# 신고 유형(스팸/욕설·혐오/불법정보/기타)
-    reason VARCHAR(500) NULL,																# 상세 사유(기타 선택 시 필수, 나머지 선택)
-    status VARCHAR(20) NOT NULL DEFAULT 'PENDING',											# 처리상태(PENDING/RESOLVED/REJECTED)
-    processed_by BIGINT NULL,																# 처리한 관리자[FK]
-    processed_at DATETIME NULL,																# 처리 시점
-    created_at DATETIME NOT NULL DEFAULT current_timestamp,									# 신고 시점
+	id BIGINT AUTO_INCREMENT,																    # 식별자[PK]
+    reporter_id BIGINT NOT NULL,															    # 신고자[FK]
+    target_question_id BIGINT NULL,															    # 신고 대상: 질문[FK]
+    target_answer_id BIGINT NULL,															    # 신고 대상: 답변[FK]
+    target_member_id BIGINT NULL,															    # 신고 대상: 회원[FK]
+    reason_category ENUM('SPAM', 'INAPPROPRIATE', 'ILLEGAL', 'WRONG_INFO', 'OTHER') NOT NULL,   # 신고 유형(스팸/욕설·혐오/불법정보/잘못된 질문/기타)
+    reason VARCHAR(500) NULL,																    # 상세 사유(기타 선택 시 필수, 나머지 선택)
+    status VARCHAR(20) NOT NULL DEFAULT 'PENDING',											    # 처리상태(PENDING/RESOLVED/REJECTED)
+    processed_by BIGINT NULL,																    # 처리한 관리자[FK]
+    processed_at DATETIME NULL,																    # 처리 시점
+    created_at DATETIME NOT NULL DEFAULT current_timestamp,									    # 신고 시점
 
     PRIMARY KEY (id),
     CONSTRAINT fk_reporter_reports FOREIGN KEY (reporter_id) REFERENCES members(id),
