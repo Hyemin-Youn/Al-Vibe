@@ -108,7 +108,13 @@ public class QuestionService {
     }
 
     // 단순 list -> page로 변환
-    public Page<Question> getQuestionPage(int page, String keyword, String sort, String searchType) {
+    public Page<Question> getQuestionPage(int page, String keyword, String sort, String searchType, String categoryName) {
+
+        Category category = null;
+        if(categoryName != null){
+            category = categoryRepository.findByName(categoryName);
+        }
+
         Pageable pageable = switch (sort) {
             case "view" -> PageRequest.of(
                     page,
@@ -139,6 +145,21 @@ public class QuestionService {
                     questionRepository.findByTitleContainingOrContentContainingAndAnswersEmpty(keyword, keyword, pageable);
                 default ->
                     questionRepository.findByTitleContainingAndAnswersEmpty(keyword, pageable);
+            };
+        }
+
+        if(category != null){
+            if(keyword.isEmpty()){
+                return questionRepository.findByCategory(category, pageable);
+            }
+
+            return switch(searchType) {
+                case "content" ->
+                    questionRepository.findByCategoryAndContentContaining(category, keyword, pageable);
+                case "all" ->
+                    questionRepository.findByCategoryAndTitleContainingOrCategoryAndContentContaining(category,keyword,category, keyword, pageable);
+                default ->
+                    questionRepository.findByCategoryAndTitleContaining(category, keyword, pageable);
             };
         }
 

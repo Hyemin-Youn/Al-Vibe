@@ -2,6 +2,7 @@ package com.alvibe.qna.controller;
 
 import com.alvibe.qna.dto.AnswerFormDto;
 import com.alvibe.qna.dto.QuestionFormDto;
+import com.alvibe.qna.entity.Category;
 import com.alvibe.qna.entity.Member;
 import com.alvibe.qna.entity.Question;
 import com.alvibe.qna.repository.MemberRepository;
@@ -43,16 +44,16 @@ public class QuestionController {
                        @RequestParam(value="page", defaultValue = "0") int page,
                        @RequestParam(value="keyword", defaultValue = "") String keyword,
                        @RequestParam(value="sort", defaultValue = "latest") String sort,
-                       @RequestParam(value="searchType", defaultValue = "title") String searchType) {
+                       @RequestParam(value="searchType", defaultValue = "title") String searchType,
+                       @RequestParam(value="category", required=false) String categoryName) {
 
-        Page<Question> questionPage = questionService.getQuestionPage(page, keyword, sort, searchType);
-
-//        List<Question> popularQuestions = questionService.getPopularQuestions();
+        Page<Question> questionPage = questionService.getQuestionPage(page, keyword, sort, searchType, categoryName);
 
         model.addAttribute("questionPage", questionPage);
         model.addAttribute("keyword", keyword);
         model.addAttribute("sort", sort);
         model.addAttribute("searchType", searchType);
+        model.addAttribute("category", categoryName);
 
         // 임시 카테고리 아이콘 생성
         model.addAttribute("categories", questionService.getAllCategories());
