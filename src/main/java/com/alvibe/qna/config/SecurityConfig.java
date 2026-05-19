@@ -14,7 +14,7 @@ public class SecurityConfig {
         System.out.println("------- Security Filter Chain 로드 중 ---------");
 
         http.authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/questions/*", "/questions/*/answers","/questions/*/related", "/member/signup","/member/login","/css/**", "/js/**", "/images/**").permitAll()
+                        .requestMatchers("/", "/questions/**", "/member/signup", "/member/login", "/css/**", "/js/**", "/images/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(login -> login
