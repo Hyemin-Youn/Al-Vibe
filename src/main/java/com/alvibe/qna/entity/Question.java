@@ -6,6 +6,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -37,6 +38,14 @@ public class Question {
 
     private boolean isDeleted;
 
-//    @OneToMany(mappedBy = "question")
-//    private List<Answer> answers;
+    //답변 수 count를 위해 추가
+    @OneToMany(mappedBy = "question")
+    private List<Answer> answers = new ArrayList<>();
+
+    // answerCount getter 추가
+    public int getAnswerCount() {
+        return answers != null ? (int) answers.stream()
+                                       .filter(a -> !a.isDeleted())  // 삭제된 답변 제외
+                                       .count() : 0;
+    }
 }
