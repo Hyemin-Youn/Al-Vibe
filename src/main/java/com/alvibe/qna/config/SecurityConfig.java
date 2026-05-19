@@ -14,7 +14,8 @@ public class SecurityConfig {
         System.out.println("------- Security Filter Chain 로드 중 ---------");
 
         http.authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/questions/**", "/member/signup", "/member/login", "/css/**", "/js/**", "/images/**").permitAll()
+                        .requestMatchers("/questions/new").authenticated()
+                        .requestMatchers("/" , "/questions/**", "/member/signup", "/member/login", "/css/**", "/js/**", "/images/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(login -> login
@@ -26,7 +27,7 @@ public class SecurityConfig {
                 )
 
                 .logout(logout -> logout
-                        .logoutSuccessUrl("/member/login")      // 로그아웃 성공 후 리다이렉트 경로
+                        .logoutSuccessUrl("/questions/list")      // 로그아웃 성공 후 리다이렉트 경로
                         .permitAll()                     // 로그아웃 기능은 모두에게 허용
                 );
 

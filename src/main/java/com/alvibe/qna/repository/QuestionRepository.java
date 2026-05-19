@@ -1,5 +1,7 @@
 package com.alvibe.qna.repository;
 
+import com.alvibe.qna.entity.Answer;
+import com.alvibe.qna.entity.Category;
 import com.alvibe.qna.entity.Question;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,12 +17,6 @@ import java.util.List;
 public interface QuestionRepository extends JpaRepository<Question, Long> {
     List<Question> findByIsDeletedFalseOrderByCreatedAtDesc();
 
-    // 미답변 검색
-//    Page<Question> findByAnswersEmpty(Pageable pageable);
-
-    // 제목 검색
-    Page<Question> findByTitleContaining(String keyword, Pageable pageable);
-
     // 세션 비교 -> 조회수 증가
     @Modifying
     @Query("""
@@ -30,8 +26,27 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
             """)
     void increaseView(@Param("id") Long id);
 
-//    List<Question> findTop5ByOrderByLikeCountDesc();
-
     // 미답변 검색
-//    Page<Question> findByTitleContainingAndAnswersEmpty(String keyword, Pageable pageable);
+    Page<Question> findByAnswersEmpty(Pageable pageable);
+
+    // 제목 검색
+    Page<Question> findByTitleContaining(String keyword, Pageable pageable);
+
+    Page<Question> findByContentContaining(String keyword, Pageable pageable);
+
+    Page<Question> findByTitleContainingOrContentContaining(String keyword, String content, Pageable pageable);
+
+    Page<Question> findByTitleContainingAndAnswersEmpty(String keyword, Pageable pageable);
+
+    Page<Question> findByTitleContainingOrContentContainingAndAnswersEmpty(String title, String content, Pageable pageable);
+
+    Page<Question> findByContentContainingAndAnswersEmpty(String keyword, Pageable pageable);
+
+    Page<Question> findByCategory(Category category, Pageable pageable);
+
+    Page<Question> findByCategoryAndContentContaining(Category category, String content, Pageable pageable);
+
+    Page<Question> findByCategoryAndTitleContainingOrCategoryAndContentContaining(Category category, String title, Category category2, String content, Pageable pageable);
+
+    Page<Question> findByCategoryAndTitleContaining(Category category, String title, Pageable pageable);
 }

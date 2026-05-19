@@ -35,7 +35,7 @@
                            class="form-control"
                            th:field="*{password}"
                            th:classappend="${#fields.hasErrors('password')} ? 'is-invalid' : ''"
-                           placeholder="최소 4자 이상 입력해주세요">
+                           placeholder="영문과 숫자만 포함 8자 이상">
                     <div class="invalid-feedback"
                          th:if="${#fields.hasErrors('password')}"
                          th:errors="*{password}"></div>
@@ -71,7 +71,7 @@
                          th:if="${#fields.hasErrors('nickname')}"
                          th:errors="*{nickname}"></div>
                 </div>
-
+                <!--
                 <div class="border rounded p-3 mb-4" style="font-size:13px">
                     <label class="d-flex align-items-center gap-2 fw-bold mb-2">
                         <input type="checkbox"> 전체 동의
@@ -87,6 +87,7 @@
                         <input type="checkbox" name="marketingAgree"> [선택] 마케팅 정보 수신에 동의합니다
                     </label>
                 </div>
+                -->
 
                 <button type="submit" class="btn btn-primary w-100 py-2">가입하기</button>
             </form>

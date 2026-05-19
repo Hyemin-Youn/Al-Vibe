@@ -25,7 +25,7 @@ public class QuestionService {
     private final CategoryRepository categoryRepository;
 
     public QuestionService(QuestionRepository questionRepository, MemberRepository memberRepository,
-                           CategoryRepository categoryRepository){
+                           CategoryRepository categoryRepository) {
         this.questionRepository = questionRepository;
         this.memberRepository = memberRepository;
         this.categoryRepository = categoryRepository;
@@ -108,7 +108,13 @@ public class QuestionService {
     }
 
     // 단순 list -> page로 변환
-    public Page<Question> getQuestionPage(int page, String keyword, String sort) {
+    public Page<Question> getQuestionPage(int page, String keyword, String sort, String searchType, String categoryName) {
+
+        Category category = null;
+        if(categoryName != null){
+            category = categoryRepository.findByName(categoryName);
+        }
+
         Pageable pageable = switch (sort) {
             case "view" -> PageRequest.of(
                     page,
@@ -127,19 +133,45 @@ public class QuestionService {
             );
         };
 
-        //        if(sort.equals("unanswered")) {
-//            if(keyword.isEmpty()) {
-//                return questionRepository.findByAnswersEmpty(pageable);
-//            }
-//
-//            return questionRepository.findByTitleContainingAndAnswersEmpty(keyword, pageable);
-//        }
+        if (sort.equals("unanswered")) {
+            if (keyword.isEmpty()) {
+                return questionRepository.findByAnswersEmpty(pageable);
+            }
+
+            return switch(searchType) {
+                case "content" ->
+                    questionRepository.findByContentContainingAndAnswersEmpty(keyword, pageable);
+                case "all" ->
+                    questionRepository.findByTitleContainingOrContentContainingAndAnswersEmpty(keyword, keyword, pageable);
+                default ->
+                    questionRepository.findByTitleContainingAndAnswersEmpty(keyword, pageable);
+            };
+        }
+
+        if(category != null){
+            if(keyword.isEmpty()){
+                return questionRepository.findByCategory(category, pageable);
+            }
+
+            return switch(searchType) {
+                case "content" ->
+                    questionRepository.findByCategoryAndContentContaining(category, keyword, pageable);
+                case "all" ->
+                    questionRepository.findByCategoryAndTitleContainingOrCategoryAndContentContaining(category,keyword,category, keyword, pageable);
+                default ->
+                    questionRepository.findByCategoryAndTitleContaining(category, keyword, pageable);
+            };
+        }
 
         if(keyword.isEmpty()) {
             return questionRepository.findAll(pageable);
         }
 
-        return questionRepository.findByTitleContaining(keyword, pageable);
+        return switch (searchType) {
+            case "content" -> questionRepository.findByContentContaining(keyword, pageable);
+            case "all" -> questionRepository.findByTitleContainingOrContentContaining(keyword, keyword, pageable);
+            default -> questionRepository.findByTitleContaining(keyword, pageable);
+        };
     }
 
     // 인기 질문 5개 추출
