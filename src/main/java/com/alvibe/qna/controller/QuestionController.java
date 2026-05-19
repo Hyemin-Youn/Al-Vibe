@@ -42,16 +42,17 @@ public class QuestionController {
     public String list(@RequestParam(required = false) Integer categoryId, Model model,
                        @RequestParam(value="page", defaultValue = "0") int page,
                        @RequestParam(value="keyword", defaultValue = "") String keyword,
-                       @RequestParam(value="sort", defaultValue = "latest") String sort) {
+                       @RequestParam(value="sort", defaultValue = "latest") String sort,
+                       @RequestParam(value="searchType", defaultValue = "title") String searchType) {
 
-        Page<Question> questionPage = questionService.getQuestionPage(page, keyword, sort);
+        Page<Question> questionPage = questionService.getQuestionPage(page, keyword, sort, searchType);
 
 //        List<Question> popularQuestions = questionService.getPopularQuestions();
 
         model.addAttribute("questionPage", questionPage);
         model.addAttribute("keyword", keyword);
         model.addAttribute("sort", sort);
-//        model.addAttribute("popularQuestion", popularQuestions);
+        model.addAttribute("searchType", searchType);
 
         // 임시 카테고리 아이콘 생성
         model.addAttribute("categories", questionService.getAllCategories());

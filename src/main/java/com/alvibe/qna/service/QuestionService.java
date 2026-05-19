@@ -108,7 +108,7 @@ public class QuestionService {
     }
 
     // 단순 list -> page로 변환
-    public Page<Question> getQuestionPage(int page, String keyword, String sort) {
+    public Page<Question> getQuestionPage(int page, String keyword, String sort, String searchType) {
         Pageable pageable = switch (sort) {
             case "view" -> PageRequest.of(
                     page,
@@ -132,14 +132,25 @@ public class QuestionService {
                 return questionRepository.findByAnswersEmpty(pageable);
             }
 
-            return questionRepository.findByTitleContainingAndAnswersEmpty(keyword, pageable);
+            return switch(searchType) {
+                case "content" ->
+                    questionRepository.findByContentContainingAndAnswersEmpty(keyword, pageable);
+                case "all" ->
+                    questionRepository.findByTitleContainingOrContentContainingAndAnswersEmpty(keyword, keyword, pageable);
+                default ->
+                    questionRepository.findByTitleContainingAndAnswersEmpty(keyword, pageable);
+            };
         }
 
         if(keyword.isEmpty()) {
             return questionRepository.findAll(pageable);
         }
 
-        return questionRepository.findByTitleContaining(keyword, pageable);
+        return switch (searchType) {
+            case "content" -> questionRepository.findByContentContaining(keyword, pageable);
+            case "all" -> questionRepository.findByTitleContainingOrContentContaining(keyword, keyword, pageable);
+            default -> questionRepository.findByTitleContaining(keyword, pageable);
+        };
     }
 
     // 인기 질문 5개 추출
