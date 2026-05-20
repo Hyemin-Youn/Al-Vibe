@@ -26,13 +26,19 @@
                     <div style="min-height:200px;white-space:pre-wrap;font-size:15px;line-height:1.8" th:text="${question.content}">내용</div>
                     <div class="d-flex justify-content-between mt-3">
                         <a href="/questions/list" class="btn btn-outline-secondary btn-sm">목록</a>
-                        <div th:if="${isAuthor}">
+                        <span th:if="${isAuthor}">
                             <a th:href="@{'/questions/edit/' + ${question.id}}" class="btn btn-outline-primary btn-sm">수정</a>
                             <form th:action="@{'/questions/delete/' + ${question.id}}" method="post"
                                   onsubmit="return confirm('정말 삭제하시겠습니까?');" class="d-inline">
                                 <button type="submit" class="btn btn-outline-danger btn-sm">삭제</button>
                             </form>
-                        </div>
+                        </span>
+                        <button type="button" class="btn btn-outline-warning btn-sm"
+                                th:if="${!isAuthor}" sec:authorize="isAuthenticated()"
+                                data-bs-toggle="modal" data-bs-target="#questionReportModal">   <!-- ← 여기 -->
+                            신고
+                        </button>
+
                     </div>
                 </div>
 
@@ -52,6 +58,64 @@
                         <li class="py-1"><a th:href="@{/questions/list(category='교육(학원)')}" class="text-decoration-none text-secondary">교육(학원)</a></li>
                     </ul>
                 </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="questionReportModal" tabindex="-1"
+         th:unless="${isAuthor}" sec:authorize="isAuthenticated()">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">질문 신고</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form th:action="@{'/questions/' + ${question.id} + '/report'}" method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">
+                                신고 유형 <span class="text-danger">*</span>
+                            </label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio"
+                                       name="reasonCategory" value="INAPPROPRIATE" required>
+                                <label class="form-check-label">욕설 / 비방</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio"
+                                       name="reasonCategory" value="SPAM">
+                                <label class="form-check-label">스팸 / 광고</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio"
+                                       name="reasonCategory" value="WRONG_INFO">
+                                <label class="form-check-label">잘못된 정보</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio"
+                                       name="reasonCategory" value="ILLEGAL">
+                                <label class="form-check-label">불법 내용</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio"
+                                       name="reasonCategory" value="OTHER">
+                                <label class="form-check-label">기타</label>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">
+                                상세 사유 <span class="text-muted">(선택)</span>
+                            </label>
+                            <textarea name="reason" class="form-control" rows="3"
+                                      placeholder="추가 설명을 입력하세요" maxlength="500"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary"
+                                data-bs-dismiss="modal">취소</button>
+                        <button type="submit" class="btn btn-danger">신고하기</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
