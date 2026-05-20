@@ -3,6 +3,7 @@ package com.alvibe.qna.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
@@ -12,6 +13,7 @@ import java.util.List;
 @Entity
 @Table(name = "question_board")
 @Data
+@SQLRestriction("is_deleted = false")
 public class Question {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
