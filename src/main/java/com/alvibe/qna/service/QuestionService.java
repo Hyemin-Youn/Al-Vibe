@@ -179,4 +179,15 @@ public class QuestionService {
 //        // like 칼럼 없음
 //        return questionRepository.findTop5ByOrderByLikeCountDesc();
 //    }
+
+
+    // 회원의 질문 개수 조회
+    public long countQuestionsByMember(Long memberId) {
+        return questionRepository.countByMember_IdAndIsDeletedFalse(memberId);
+    }
+
+    // 회원의 질문 목록 조회
+    public List<Question> getQuestionsByMember(Long memberId) {
+        return questionRepository.findByMember_IdAndIsDeletedFalseOrderByCreatedAtDesc(memberId);
+    }
 }
