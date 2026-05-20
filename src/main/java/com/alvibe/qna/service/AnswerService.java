@@ -155,4 +155,17 @@ public class AnswerService {
         comment.setDeleted(true);
     }
 
+    // 마이페이지에서 사용할 메서드 추가
+    public List<Answer> getAnswersByMemberId(Long memberId) {
+        return answerRepository.findByMemberIdAndIsDeletedFalseAndParentIsNull(memberId);
+    }
+
+    public int countAnswersByMemberId(Long memberId) {
+        return answerRepository.countByMemberIdAndIsDeletedFalseAndParentIsNull(memberId);
+    }
+
+    public int countSelectedAnswersByMemberId(Long memberId) {
+        return answerRepository.countByMemberIdAndIsSelectedTrueAndIsDeletedFalse(memberId);
+    }
+
 }
