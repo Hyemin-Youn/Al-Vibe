@@ -1,7 +1,10 @@
 package com.alvibe.qna.controller;
 
+import com.alvibe.qna.service.AnswerService;
+import com.alvibe.qna.service.QuestionService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -21,9 +24,14 @@ import java.security.Principal;
 @Controller
 public class MyPageController {
     private final MyPageService myPageService;
+    private final QuestionService questionService;
+    private final AnswerService answerService;
 
-    public MyPageController(MyPageService myPageService){
+    @Autowired
+    public MyPageController(MyPageService myPageService, QuestionService questionService, AnswerService answerService) {
         this.myPageService = myPageService;
+        this.questionService = questionService;
+        this.answerService = answerService;
     }
 
     @GetMapping("/member/mypage")
@@ -31,13 +39,19 @@ public class MyPageController {
        String email = principal.getName();
 
        MyPageProfileDto myPageProfileDto = myPageService.lookUpMemberByEmail(email);
-       model.addAttribute("myPageProfileDto", myPageProfileDto);
+       Long memberId = myPageProfileDto.getId();
+
+        model.addAttribute("myPageProfileDto", myPageProfileDto);
+        model.addAttribute("questionCount", questionService.countQuestionsByMember(memberId));
+        model.addAttribute("answerCount", answerService.countAnswersByMemberId(memberId));
+        model.addAttribute("adoptedCount", answerService.countSelectedAnswersByMemberId(memberId));
+        model.addAttribute("myQuestions", questionService.getQuestionsByMember(memberId));
+        model.addAttribute("myAnswers", answerService.getAnswersByMemberId(memberId));
 
        UpdateMyInfoRequestDto updateDto = new UpdateMyInfoRequestDto();
        updateDto.setNickname(myPageProfileDto.getNickname()); // 기존 닉네임
        updateDto.setEmail(myPageProfileDto.getEmail()); // 기존 이메일
         model.addAttribute("updateMyInfoRequestDto", updateDto);
-
         model.addAttribute("changePasswordRequestDto", new ChangePasswordRequestDto());
 
        return "member/mypage";
@@ -47,16 +61,23 @@ public class MyPageController {
     public String updateMyInfo(Principal principal, @Valid UpdateMyInfoRequestDto updateMyInfoRequestDto, BindingResult bindingResult, Model model){
         if(bindingResult.hasErrors()){
             String email = principal.getName();
-
             MyPageProfileDto myPageProfileDto = myPageService.lookUpMemberByEmail(email);
-            model.addAttribute("myPageProfileDto", myPageProfileDto);
-            model.addAttribute("changePasswordRequestDto", new ChangePasswordRequestDto());
+            Long memberId = myPageProfileDto.getId();
 
+            model.addAttribute("myPageProfileDto", myPageProfileDto);
+            model.addAttribute("questionCount", questionService.countQuestionsByMember(memberId));
+            model.addAttribute("answerCount", answerService.countAnswersByMemberId(memberId));
+            model.addAttribute("adoptedCount", answerService.countSelectedAnswersByMemberId(memberId));
+            model.addAttribute("myQuestions", questionService.getQuestionsByMember(memberId));
+            model.addAttribute("myAnswers", answerService.getAnswersByMemberId(memberId));
+
+            model.addAttribute("changePasswordRequestDto", new ChangePasswordRequestDto());
             return "member/mypage";
         }
 
         try{
             myPageService.updateMyInfo(principal.getName(), updateMyInfoRequestDto);
+
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             Authentication newAuthentication = new UsernamePasswordAuthenticationToken(
                     updateMyInfoRequestDto.getEmail(),
@@ -75,11 +96,17 @@ public class MyPageController {
             }
 
             String email = principal.getName();
-
             MyPageProfileDto myPageProfileDto = myPageService.lookUpMemberByEmail(email);
-            model.addAttribute("myPageProfileDto", myPageProfileDto);
-            model.addAttribute("changePasswordRequestDto", new ChangePasswordRequestDto());
+            Long memberId = myPageProfileDto.getId();
 
+            model.addAttribute("myPageProfileDto", myPageProfileDto);
+            model.addAttribute("questionCount", questionService.countQuestionsByMember(memberId));
+            model.addAttribute("answerCount", answerService.countAnswersByMemberId(memberId));
+            model.addAttribute("adoptedCount", answerService.countSelectedAnswersByMemberId(memberId));
+            model.addAttribute("myQuestions", questionService.getQuestionsByMember(memberId));
+            model.addAttribute("myAnswers", answerService.getAnswersByMemberId(memberId));
+
+            model.addAttribute("changePasswordRequestDto", new ChangePasswordRequestDto());
             return "member/mypage";
         }
         return "redirect:/member/mypage";
@@ -94,8 +121,14 @@ public class MyPageController {
         if(bindingResult.hasErrors()){
             String email = principal.getName();
             MyPageProfileDto myPageProfileDto = myPageService.lookUpMemberByEmail(email);
+            Long memberId = myPageProfileDto.getId();
 
             model.addAttribute("myPageProfileDto", myPageProfileDto);
+            model.addAttribute("questionCount", questionService.countQuestionsByMember(memberId));
+            model.addAttribute("answerCount", answerService.countAnswersByMemberId(memberId));
+            model.addAttribute("adoptedCount", answerService.countSelectedAnswersByMemberId(memberId));
+            model.addAttribute("myQuestions", questionService.getQuestionsByMember(memberId));
+            model.addAttribute("myAnswers", answerService.getAnswersByMemberId(memberId));
 
             UpdateMyInfoRequestDto updateDto = new UpdateMyInfoRequestDto();
             updateDto.setNickname(myPageProfileDto.getNickname());
@@ -119,7 +152,14 @@ public class MyPageController {
 
             String email = principal.getName();
             MyPageProfileDto myPageProfileDto = myPageService.lookUpMemberByEmail(email);
+            Long memberId = myPageProfileDto.getId();
+
             model.addAttribute("myPageProfileDto", myPageProfileDto);
+            model.addAttribute("questionCount", questionService.countQuestionsByMember(memberId));
+            model.addAttribute("answerCount", answerService.countAnswersByMemberId(memberId));
+            model.addAttribute("adoptedCount", answerService.countSelectedAnswersByMemberId(memberId));
+            model.addAttribute("myQuestions", questionService.getQuestionsByMember(memberId));
+            model.addAttribute("myAnswers", answerService.getAnswersByMemberId(memberId));
 
             UpdateMyInfoRequestDto updateDto = new UpdateMyInfoRequestDto();
             updateDto.setNickname(myPageProfileDto.getNickname());

@@ -30,19 +30,19 @@
                         <div class="row text-center g-2">
                             <div class="col-4">
                                 <div class="bg-light rounded p-3">
-                                    <div class="fw-bold fs-4" style="color:#ea580c">0</div>
+                                    <div class="fw-bold fs-4" style="color:#ea580c" th:text="${questionCount}">0</div>
                                     <div class="text-muted" style="font-size:12px">작성 질문</div>
                                 </div>
                             </div>
                             <div class="col-4">
                                 <div class="bg-light rounded p-3">
-                                    <div class="fw-bold fs-4" style="color:#ea580c">0</div>
+                                    <div class="fw-bold fs-4" style="color:#ea580c" th:text="${answerCount}">0</div>
                                     <div class="text-muted" style="font-size:12px">작성 답변</div>
                                 </div>
                             </div>
                             <div class="col-4">
                                 <div class="bg-light rounded p-3">
-                                    <div class="fw-bold fs-4" style="color:#ea580c">0</div>
+                                    <div class="fw-bold fs-4" style="color:#ea580c" th:text="${adoptedCount}">0</div>
                                     <div class="text-muted" style="font-size:12px">답변 채택</div>
                                 </div>
                             </div>
@@ -52,17 +52,51 @@
 
                 <div class="card">
                     <div class="card-header bg-white">
-                        <ul class="nav nav-tabs card-header-tabs">
-                            <li class="nav-item">
-                                <a class="nav-link active" href="#">내 질문</a>
+                        <ul class="nav nav-tabs card-header-tabs" id="myTab" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active fw-bold" id="question-tab" data-bs-toggle="tab" data-bs-target="#question-pane" type="button" role="tab" aria-controls="question-pane" aria-selected="true" style="color:#ea580c;">내 질문</button>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-muted" href="#">내 답변</a>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link text-muted" id="answer-tab" data-bs-toggle="tab" data-bs-target="#answer-pane" type="button" role="tab" aria-controls="answer-pane" aria-selected="false">내 답변</button>
                             </li>
                         </ul>
                     </div>
-                    <div class="card-body">
-                        <p class="text-muted text-center py-4">작성한 질문이 없습니다.</p>
+
+                    <div class="card-body p-0 tab-content" id="myTabContent">
+
+                        <div class="tab-pane fade show active" id="question-pane" role="tabpanel" aria-labelledby="question-tab" tabindex="0">
+                            <p th:if="${#lists.isEmpty(myQuestions)}" class="text-muted text-center py-5 mb-0">작성한 질문이 없습니다.</p>
+
+                            <div class="list-group list-group-flush" th:unless="${#lists.isEmpty(myQuestions)}">
+                                <a th:each="q : ${myQuestions}" th:href="@{|/questions/detail/${q.id}|}" class="list-group-item list-group-item-action py-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <h6 class="mb-0 fw-bold text-truncate" style="max-width: 80%;" th:text="${q.title}">질문 제목</h6>
+                                        <small class="text-muted" th:text="${#temporals.format(q.createdAt, 'yyyy.MM.dd')}">날짜</small>
+                                    </div>
+                                    <div class="text-muted" style="font-size: 13px;">
+                                        조회수 <span th:text="${q.viewCount}">0</span> · 답변 <span th:text="${q.answerCount}">0</span>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="tab-pane fade" id="answer-pane" role="tabpanel" aria-labelledby="answer-tab" tabindex="0">
+                            <p th:if="${#lists.isEmpty(myAnswers)}" class="text-muted text-center py-5 mb-0">작성한 답변이 없습니다.</p>
+
+                            <div class="list-group list-group-flush" th:unless="${#lists.isEmpty(myAnswers)}">
+                                <a th:each="a : ${myAnswers}" th:href="@{|/questions/detail/${a.question.id}|}" class="list-group-item list-group-item-action py-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <div class="text-truncate text-dark" style="max-width: 75%; font-size: 15px;" th:text="${a.content}">답변 내용</div>
+                                        <small class="text-muted" th:text="${#temporals.format(a.createdAt, 'yyyy.MM.dd')}">날짜</small>
+                                    </div>
+                                    <div class="text-muted d-flex align-items-center" style="font-size: 13px;">
+                                        <span class="text-truncate d-inline-block" style="max-width: 80%;">원문: [[${a.question.title}]]</span>
+                                        <span th:if="${a.isSelected}" class="badge bg-success ms-2" style="font-size:11px;">채택됨</span>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>

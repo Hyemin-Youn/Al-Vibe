@@ -26,7 +26,12 @@ public class MyPageService {
         Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalStateException("사용자를 찾을 수 없습니다"));
 
-        MyPageProfileDto myPageProfileDto = new MyPageProfileDto(member.getNickname(), member.getEmail(), member.getCreateAt());
+        MyPageProfileDto myPageProfileDto = new MyPageProfileDto();
+        myPageProfileDto.setId(member.getId());
+        myPageProfileDto.setNickname(member.getNickname());
+        myPageProfileDto.setEmail(member.getEmail());
+        myPageProfileDto.setCreateAt(member.getCreateAt());
+
         return myPageProfileDto;
     }
 
