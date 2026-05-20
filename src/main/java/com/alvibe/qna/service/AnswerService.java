@@ -95,6 +95,10 @@ public class AnswerService {
             throw new IllegalStateException("질문 작성자만 채택할 수 있습니다.");
         }
 
+        if (answer.getMember().getId().equals(memberId)) {
+            throw new IllegalStateException("본인의 답변은 채택할 수 없습니다.");
+        }
+
         // 기존 채택된 답변 자동 취소 후 새로 채택
         List<Answer> answers = answerRepository.findAnswersByQuestionIdWithFilter(answer.getQuestion().getId());
         answers.stream()
