@@ -8,6 +8,9 @@ import com.alvibe.qna.entity.Question;
 import com.alvibe.qna.repository.MemberRepository;
 import com.alvibe.qna.service.AnswerService;
 import com.alvibe.qna.service.QuestionService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -65,9 +68,29 @@ public class QuestionController {
     @GetMapping("/detail/{id}")
     public String detail(@PathVariable Long id,
                          @AuthenticationPrincipal UserDetails userDetails,
+                         HttpServletRequest request,
+                         HttpServletResponse response,
                          Model model) {
-        Question question = questionService.getQuestionDetail(id);
+        Cookie[] cookies = request.getCookies();
+        boolean isViewed = false;
+
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("viewed_post_" + id)) {
+                    isViewed = true;
+                    break;
+                }
+            }
+        }
+        Question question = questionService.getQuestionDetail(id, isViewed);
         model.addAttribute("question", question);
+
+        if (!isViewed) {
+            Cookie newCookie = new Cookie("viewed_post_" + id, "true");
+            newCookie.setMaxAge(60 * 60 * 24); // 24시간
+            newCookie.setPath("/");
+            response.addCookie(newCookie);
+        }
 
         boolean isAuthor = false;
         if (userDetails != null) {
