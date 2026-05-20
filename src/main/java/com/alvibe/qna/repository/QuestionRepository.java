@@ -49,4 +49,10 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
     Page<Question> findByCategoryAndTitleContainingOrCategoryAndContentContaining(Category category, String title, Category category2, String content, Pageable pageable);
 
     Page<Question> findByCategoryAndTitleContaining(Category category, String title, Pageable pageable);
+
+    // 회원이 작성한 질문 개수
+    long countByMember_IdAndIsDeletedFalse(Long memberId);
+
+    // 회원이 작성한 질문 목록
+    List<Question> findByMember_IdAndIsDeletedFalseOrderByCreatedAtDesc(Long memberId);
 }

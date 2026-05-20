@@ -5,27 +5,30 @@
 
 <nav th:fragment="navbar" class="navbar navbar-expand-lg">
     <div class="container">
-        <a class="navbar-brand" th:href="@{/}">알바이브</a>
+        <a class="navbar-brand" th:href="@{/questions/list}">알바이브</a>
 
         <div class="collapse navbar-collapse">
             <ul class="navbar-nav me-auto">
                 <li class="nav-item">
-                    <a class="nav-link" th:href="@{/questions}">전체</a>
+                    <a class="nav-link" th:href="@{/questions/list}">전체</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" th:href="@{/questions?category=food}">외식/음식점</a>
+                    <a class="nav-link" th:href="@{/questions/list(category='외식/음료')}">외식/음료</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" th:href="@{/questions?category=service}">서비스/판매</a>
+                    <a class="nav-link" th:href="@{/questions/list(category='유통/판매')}">유통/판매</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" th:href="@{/questions?category=delivery}">배달/운전</a>
+                    <a class="nav-link" th:href="@{/questions/list(category='서비스')}">서비스</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" th:href="@{/questions?category=edu}">교육</a>
+                    <a class="nav-link" th:href="@{/questions/list(category='사무/학원')}">사무/학원</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" th:href="@{/questions?category=free}">자유게시판</a>
+                    <a class="nav-link" th:href="@{/questions/list(category='운송/배달')}">운송/배달</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/questions/list(category='기타')}">기타</a>
                 </li>
             </ul>
 

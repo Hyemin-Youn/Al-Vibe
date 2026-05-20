@@ -30,8 +30,6 @@ public class MyPageController {
     public String mypage(Principal principal, Model model){
        String email = principal.getName();
 
-        System.out.println("[mypage 메서드] 현재 로그인한 사람: " + principal.getName());
-
        MyPageProfileDto myPageProfileDto = myPageService.lookUpMemberByEmail(email);
        model.addAttribute("myPageProfileDto", myPageProfileDto);
 
@@ -49,8 +47,6 @@ public class MyPageController {
     public String updateMyInfo(Principal principal, @Valid UpdateMyInfoRequestDto updateMyInfoRequestDto, BindingResult bindingResult, Model model){
         if(bindingResult.hasErrors()){
             String email = principal.getName();
-
-            System.out.println("[updateMyInfo - hasErrors쪽] 현재 로그인한 사람: " + principal.getName());
 
             MyPageProfileDto myPageProfileDto = myPageService.lookUpMemberByEmail(email);
             model.addAttribute("myPageProfileDto", myPageProfileDto);
@@ -80,7 +76,6 @@ public class MyPageController {
 
             String email = principal.getName();
 
-            System.out.println("[[updateMyInfo - catch쪽]현재 로그인한 사람: " + principal.getName());
             MyPageProfileDto myPageProfileDto = myPageService.lookUpMemberByEmail(email);
             model.addAttribute("myPageProfileDto", myPageProfileDto);
             model.addAttribute("changePasswordRequestDto", new ChangePasswordRequestDto());
@@ -98,7 +93,6 @@ public class MyPageController {
         }
         if(bindingResult.hasErrors()){
             String email = principal.getName();
-            System.out.println("[changePassword - hasErrors쪽] 현재 로그인한 사람: " + principal.getName());
             MyPageProfileDto myPageProfileDto = myPageService.lookUpMemberByEmail(email);
 
             model.addAttribute("myPageProfileDto", myPageProfileDto);
@@ -124,7 +118,6 @@ public class MyPageController {
             bindingResult.rejectValue("password", "passwordMismatch", e.getMessage());
 
             String email = principal.getName();
-            System.out.println("[changePassword - catch쪽] 현재 로그인한 사람: " + principal.getName());
             MyPageProfileDto myPageProfileDto = myPageService.lookUpMemberByEmail(email);
             model.addAttribute("myPageProfileDto", myPageProfileDto);
 
