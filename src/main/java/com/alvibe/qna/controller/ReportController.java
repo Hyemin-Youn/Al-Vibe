@@ -44,4 +44,23 @@ public class ReportController {
         Long questionId = answerService.getQuestionIdByAnswerId(id);
         return "redirect:/questions/detail/" + questionId;
     }
+
+    @PostMapping("/questions/{id}/report")
+    public String reportQuestion(
+            @PathVariable Long id,
+            @ModelAttribute ReportFormDto dto,
+            @AuthenticationPrincipal UserDetails userDetails,
+            RedirectAttributes redirectAttributes) {
+
+        if (userDetails == null) return "redirect:/member/login";
+
+        try {
+            reportService.reportQuestion(id, dto, getMemberId(userDetails));
+            redirectAttributes.addFlashAttribute("reportSuccess", "신고가 접수되었습니다.");
+        } catch (IllegalStateException e) {
+            redirectAttributes.addFlashAttribute("reportError", e.getMessage());
+        }
+
+        return "redirect:/questions/detail/" + id;
+    }
 }
