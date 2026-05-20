@@ -13,7 +13,7 @@
                     <a class="nav-link" th:href="${c.name == '전체'} ? @{/questions/list} : @{/questions/list(category=${c.name})}"
                        th:text="${c.name}"
                        th:style="${category == null and c.name == '전체'} ? 'color:#ea580c !important;font-weight:600'
-                    : (category == c.name
+                    : (${category != null and category.equals(c.name)}
                         ? 'color:#ea580c !important;font-weight:600'
                         : '')"></a>
                 </li>
