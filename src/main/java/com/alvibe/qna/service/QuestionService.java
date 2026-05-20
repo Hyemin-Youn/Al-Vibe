@@ -174,9 +174,4 @@ public class QuestionService {
         };
     }
 
-    // 인기 질문 5개 추출
-//    public List<Question> getPopularQuestions() {
-//        // like 칼럼 없음
-//        return questionRepository.findTop5ByOrderByLikeCountDesc();
-//    }
 }
