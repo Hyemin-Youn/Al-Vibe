@@ -35,10 +35,12 @@ public class QuestionService {
 
 
     // 2. 질문 상세 조회
-    public Question getQuestionDetail(Long id) {
+    public Question getQuestionDetail(Long id, boolean isViewed) {
         Question question = questionRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("질문을 찾을 수 없습니다"));
-        question.setViewCount(question.getViewCount() + 1);
+        if (!isViewed) {
+            question.setViewCount(question.getViewCount() + 1);
+        }
         return question;
     }
 
