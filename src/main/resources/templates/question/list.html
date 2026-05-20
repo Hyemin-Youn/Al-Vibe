@@ -99,13 +99,22 @@
                 <div class="card p-3 mb-3">
                     <h6 class="fw-bold mb-3">카테고리</h6>
                     <ul class="list-unstyled mb-0">
-                        <li th:each="c : ${categories}" class="py-1 border-bottom d-flex justify-content-between">
-                            <span class="text-secondary">
+                        <li class="py-1 border-bottom d-flex justify-content-between"
+                            th:each="c : ${categories}">
+
+                            <!-- 카테고리 이름 -->
+                            <a th:href="@{/questions/list(category=${c.name == '전체' ? null : c.name})}"
+                               class="text-decoration-none"
+                               th:style="${category == c.name or (category == null and c.name == '전체')}
+                  ? 'color:#ea580c;font-weight:600'
+                  : 'color:#6b7280'">
+
                                 <span th:text="${c.name}"></span>
-                            </span>
-                            <span
-                                  th:text="${c.questionCount}">
-                            </span>
+                            </a>
+
+                            <!-- 개수 -->
+                            <span th:text="${c.questionCount}"></span>
+
                         </li>
                     </ul>
                 </div>
