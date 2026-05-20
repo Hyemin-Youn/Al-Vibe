@@ -98,7 +98,9 @@
         </form>
 
         <div class="mt-2 d-flex gap-2 align-items-center">
-            <form th:if="${question != null and question.member.id == sessionMemberId and !answer.selected}"
+            <form th:if="${question.member.id == sessionMemberId
+              and !answer.selected
+              and answer.member.id != sessionMemberId}"
                   th:action="@{'/answers/' + ${answer.id} + '/adopt'}"
                   method="post"
                   class="d-inline">
