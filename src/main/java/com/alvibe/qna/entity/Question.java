@@ -1,7 +1,8 @@
 package com.alvibe.qna.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -12,7 +13,8 @@ import java.util.List;
 
 @Entity
 @Table(name = "question_board")
-@Data
+@Getter
+@Setter
 @SQLRestriction("is_deleted = false")
 public class Question {
     @Id
@@ -27,6 +29,7 @@ public class Question {
     private Category category;
 
     private String title;
+
 
     private String content;
 
