@@ -8,7 +8,6 @@
 
 <div th:fragment="answerSection">
 
-    <!-- 답변 작성 영역 -->
     <hr class="my-4">
     <h5>답변 작성</h5>
 
@@ -16,8 +15,8 @@
         답변을 작성하려면 <a th:href="@{/member/login}">로그인</a>이 필요합니다.
     </div>
 
-    <form th:if="${sessionMemberId != null}"
-          th:action="@{'/questions/' + ${questionId} + '/answers'}"
+    <form th:if="${sessionMemberId != null and question != null}"
+          th:action="@{'/questions/' + ${question.id} + '/answers'}"
           method="post"
           class="mt-2">
         <div class="mb-3">
@@ -25,7 +24,6 @@
                   class="form-control"
                   rows="5"
                   placeholder="답변 내용을 입력하세요"></textarea>
-            <!-- 유효성 오류 메시지 -->
             <div th:if="${answerError}" class="text-danger small mt-1"
                  th:text="${answerError}"></div>
         </div>
@@ -34,7 +32,6 @@
         </div>
     </form>
 
-    <!-- 채택된 답변 영역 -->
     <div th:if="${adoptedAnswer != null}" class="mt-4">
         <hr class="my-4">
         <h5><span class="text-success">✔</span> 채택된 답변</h5>
@@ -47,7 +44,7 @@
             <div class="mt-2" style="white-space: pre-wrap;"
                  th:text="${adoptedAnswer.content}">채택된 답변 내용</div>
 
-            <div th:if="${question.member.id == sessionMemberId}" class="mt-2 text-end">
+            <div th:if="${question != null and question.member.id == sessionMemberId}" class="mt-2 text-end">
                 <form th:action="@{'/answers/' + ${adoptedAnswer.id} + '/cancel-adopt'}"
                       method="post"
                       class="d-inline"
@@ -60,7 +57,6 @@
 
     <hr class="my-4">
 
-    <!-- 답변 목록 -->
     <h4>답변 <span class="text-primary" th:text="${#lists.size(answers)}">0</span>개</h4>
 
     <p th:if="${#lists.isEmpty(answers)}" class="text-muted mt-3">답변이 없습니다.</p>
@@ -76,7 +72,6 @@
             <div class="d-flex align-items-center gap-2">
                 <div class="text-muted small"
                      th:text="${#temporals.format(answer.createdAt, 'yyyy-MM-dd HH:mm')}">날짜</div>
-                <!-- 신고 버튼 추가 (타인 답변 + 로그인 시에만) -->
                 <button th:if="${sessionMemberId != null and answer.member.id != sessionMemberId}"
                         type="button"
                         class="btn btn-sm btn-danger"
@@ -103,7 +98,7 @@
         </form>
 
         <div class="mt-2 d-flex gap-2 align-items-center">
-            <form th:if="${question.member.id == sessionMemberId and !answer.selected}"
+            <form th:if="${question != null and question.member.id == sessionMemberId and !answer.selected}"
                   th:action="@{'/answers/' + ${answer.id} + '/adopt'}"
                   method="post"
                   class="d-inline">
@@ -121,43 +116,41 @@
             </div>
         </div>
 
-        <!-- 대댓글 목록 -->
         <div th:if="${not #lists.isEmpty(answer.children)}"
              class="mt-3 ms-4 border-start ps-3">
             <div th:each="comment : ${answer.children}" class="mb-2">
-                <div class="d-flex justify-content-between align-items-center">
-    <span class="fw-semibold small"
-          th:text="${comment.member.nickname}">닉네임</span>
-                    <div class="d-flex align-items-center gap-2">
-        <span class="text-muted small"
-              th:text="${#temporals.format(comment.createdAt, 'yyyy-MM-dd HH:mm')}">날짜</span>
-                        <!-- 대댓글 신고 버튼 -->
-                        <button th:if="${sessionMemberId != null and comment.member.id != sessionMemberId}"
-                                type="button"
-                                class="btn btn-sm btn-danger"
-                                style="font-size:11px; padding: 2px 8px;"
-                                th:attr="onclick='openReportModal(' + ${comment.id} + ')'">
-                            신고
-                        </button>
+                <div th:if="${!comment.isDeleted}">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="fw-semibold small" th:text="${comment.member.nickname}">닉네임</span>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="text-muted small"
+                                  th:text="${#temporals.format(comment.createdAt, 'yyyy-MM-dd HH:mm')}">날짜</span>
+                            <button th:if="${sessionMemberId != null and comment.member.id != sessionMemberId}"
+                                    type="button"
+                                    class="btn btn-sm btn-danger"
+                                    style="font-size:11px; padding: 2px 8px;"
+                                    th:attr="onclick='openReportModal(' + ${comment.id} + ')'">
+                                신고
+                            </button>
+                        </div>
                     </div>
-                </div>
 
-                <div class="small mt-1" style="white-space: pre-wrap;"
-                     th:text="${comment.content}">대댓글 내용</div>
+                    <div class="small mt-1" style="white-space: pre-wrap;"
+                         th:text="${comment.content}">대댓글 내용</div>
 
-                <div th:if="${comment.member.id == sessionMemberId}" class="mt-1">
-                    <form th:action="@{'/comments/' + ${comment.id} + '/delete'}"
-                          method="post"
-                          onsubmit="return confirm('삭제하시겠습니까?');"
-                          class="d-inline">
-                        <button type="submit"
-                                class="btn btn-sm btn-link text-danger p-0">삭제</button>
-                    </form>
+                    <div th:if="${comment.member.id == sessionMemberId}" class="mt-1">
+                        <form th:action="@{'/comments/' + ${comment.id} + '/delete'}"
+                              method="post"
+                              onsubmit="return confirm('삭제하시겠습니까?');"
+                              class="d-inline">
+                            <button type="submit"
+                                    class="btn btn-sm btn-link text-danger p-0">삭제</button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- 대댓글 버튼 (로그인 시에만) -->
         <div th:if="${sessionMemberId != null}" class="mt-2">
             <button type="button"
                     class="btn btn-sm btn-link text-secondary p-0 comment-toggle-btn"
@@ -165,8 +158,8 @@
                 <i class="ti ti-message"></i> 댓글
             </button>
 
-            <!-- 대댓글 작성 폼 (기본 숨김) -->
-            <div class="comment-form mt-2 ms-4" style="display:none;">
+            <div class="comment-form mt-2 ms-4" style="display:none;"
+                 th:attr="data-answer-id=${answer.id}">
                 <form th:action="@{'/answers/' + ${answer.id} + '/comments'}"
                       method="post"
                       class="d-flex gap-2">
@@ -184,7 +177,6 @@
         </div>
     </div>
 
-    <!-- 신고 모달 추가 -->
     <div class="modal fade" id="reportModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -227,7 +219,8 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">
-                                상세 사유 <span class="text-muted">(선택)</span>
+                                상세 사유 <span class="text-muted reason-optional">(선택)</span>
+                                <span class="text-danger reason-required" style="display:none;">(필수)</span>
                             </label>
                             <textarea name="reason" class="form-control" rows="3"
                                       placeholder="추가 설명을 입력하세요"></textarea>
@@ -243,9 +236,25 @@
         </div>
     </div>
 
+    <div class="toast-container position-fixed top-50 start-50 translate-middle p-3" style="z-index:9999">
+
+        <div id="reportToast" class="toast align-items-center bg-white text-dark border shadow-lg"
+             role="alert" aria-live="assertive" aria-atomic="true" style="min-width: 300px;">
+
+            <div class="d-flex justify-content-center align-items-center p-2">
+                <div class="toast-body text-center w-100 fs-6 fw-semibold">
+                    <span id="toastMessage"></span>
+                </div>
+                <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+
+        </div>
+
+    </div>
+
 </div>
 
-<script th:fragment="answerScript">
+<script th:fragment="answerScript" th:inline="javascript">
     document.querySelectorAll('.edit-btn').forEach(btn => {
         btn.addEventListener('click', function () {
             const card = this.closest('.border');
@@ -267,8 +276,8 @@
     // 대댓글 토글
     document.querySelectorAll('.comment-toggle-btn').forEach(btn => {
         btn.addEventListener('click', function () {
-            const card = this.closest('.border');
-            const form = card.querySelector('.comment-form');
+            const answerId = this.dataset.answerId;
+            const form = document.querySelector(`.comment-form[data-answer-id="${answerId}"]`);
             const isVisible = form.style.display === 'block';
             form.style.display = isVisible ? 'none' : 'block';
             if (!isVisible) {
@@ -285,12 +294,89 @@
         });
     });
 
-    // 신고 모달 열기
+    // 신고 모달
     function openReportModal(answerId) {
+        document.getElementById('reportForm').reset();
+        const textarea = document.querySelector('textarea[name="reason"]');
+        textarea.removeAttribute('required');
+        textarea.placeholder = '추가 설명을 입력하세요 (선택)';
+        textarea.classList.remove('border-danger');
+        document.querySelector('.reason-optional').style.display = 'inline';
+        document.querySelector('.reason-required').style.display = 'none';
+
         document.getElementById('reportForm').action = '/answers/' + answerId + '/report';
         new bootstrap.Modal(document.getElementById('reportModal')).show();
     }
 
+    // 기타 선택 시 사유 필수 처리
+    document.querySelectorAll('input[name="reasonCategory"]').forEach(radio => {
+        radio.addEventListener('change', function () {
+            const textarea = document.querySelector('textarea[name="reason"]');
+            const optional = document.querySelector('.reason-optional');
+            const required = document.querySelector('.reason-required');
+
+            if (this.value === 'OTHER') {
+                textarea.setAttribute('required', 'true');
+                textarea.placeholder = '기타 사유를 입력해주세요 (필수)';
+                textarea.classList.add('border-danger');
+                optional.style.display = 'none';
+                required.style.display = 'inline';
+            } else {
+                textarea.removeAttribute('required');
+                textarea.placeholder = '추가 설명을 입력하세요 (선택)';
+                textarea.classList.remove('border-danger');
+                optional.style.display = 'inline';
+                required.style.display = 'none';
+            }
+        });
+    });
+
+    // 신고 폼 제출 유효성 검사
+    document.getElementById('reportForm').addEventListener('submit', function (e) {
+        const selected = document.querySelector('input[name="reasonCategory"]:checked');
+        const reason = document.querySelector('textarea[name="reason"]').value.trim();
+
+        if (!selected) {
+            e.preventDefault();
+            alert('신고 유형을 선택해주세요.');
+            return;
+        }
+
+        if (selected.value === 'OTHER' && reason === '') {
+            e.preventDefault();
+            alert('기타 선택 시 상세 사유를 입력해주세요.');
+        }
+    });
+
+    // 신고 성공, 중복 신고 메시지
+    document.addEventListener('DOMContentLoaded', function () {
+        const reportSuccess = /*[[${reportSuccess}]]*/ null;
+        const reportError = /*[[${reportError}]]*/ null;
+
+        const toastEl = document.getElementById('reportToast');
+        const toastMessageEl = document.getElementById('toastMessage');
+
+        if (toastEl && toastMessageEl) {
+            const toast = new bootstrap.Toast(toastEl, { delay: 4000 });
+
+            if (reportSuccess) {
+                toastEl.classList.add('border-secondary-subtle');
+                toastMessageEl.innerHTML = '<span class="text-success">✔</span> ' +
+                    '신고가 완료되었습니다!<br>' +
+                    '회원님의 소중한 신고는 쾌적한 서비스 운영에 큰 도움이 됩니다.\n';
+                toast.show();
+            }
+
+            else if (reportError) {
+                toastEl.classList.remove('border-secondary-subtle');
+                toastEl.classList.add('border-danger');
+
+                // 중복 신고시 메시지
+                toastMessageEl.innerHTML = `<span class="text-danger">⚠️</span> ${reportError}`;
+                toast.show();
+            }
+        }
+    });
 </script>
 
 </body>
