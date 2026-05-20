@@ -9,33 +9,13 @@
 
         <div class="collapse navbar-collapse">
             <ul class="navbar-nav me-auto">
-                <li class="nav-item">
-                    <a class="nav-link" th:href="@{/questions/list}"
-                       th:style="${category == null} ? 'color:#ea580c !important;font-weight:600' : ''">전체</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" th:href="@{/questions/list(category='외식/음료')}"
-                       th:style="${category == '외식/음료'} ? 'color:#ea580c !important;font-weight:600' : ''">외식/음료</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" th:href="@{/questions/list(category='유통/판매')}"
-                       th:style="${category == '유통/판매'} ? 'color:#ea580c !important;font-weight:600' : ''">유통/판매</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" th:href="@{/questions/list(category='서비스')}"
-                       th:style="${category == '서비스'} ? 'color:#ea580c !important;font-weight:600' : ''">서비스</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" th:href="@{/questions/list(category='사무/학원')}"
-                       th:style="${category == '사무/학원'} ? 'color:#ea580c !important;font-weight:600' : ''">사무/학원</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" th:href="@{/questions/list(category='운송/배달')}"
-                       th:style="${category == '운송/배달'} ? 'color:#ea580c !important;font-weight:600' : ''">운송/배달</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" th:href="@{/questions/list(category='기타')}"
-                       th:style="${category == '기타'} ? 'color:#ea580c !important;font-weight:600' : ''">기타</a>
+                <li class="nav-item" th:each="c:${categories}">
+                    <a class="nav-link" th:href="${c.name == '전체'} ? @{/questions/list} : @{/questions/list(category=${c.name})}"
+                       th:text="${c.name}"
+                       th:style="${category == null and c.name == '전체'} ? 'color:#ea580c !important;font-weight:600'
+                    : (category == c.name
+                        ? 'color:#ea580c !important;font-weight:600'
+                        : '')"></a>
                 </li>
             </ul>
 

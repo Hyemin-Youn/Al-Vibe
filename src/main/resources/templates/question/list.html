@@ -14,11 +14,14 @@
                 <input type="hidden" name="sort" th:value="${sort}">
                 <select name="searchType" class="form-select w-auto border-0 rounded-4 shadow-sm">
                     <option value="title"
-                            th:selected="${searchType == 'title'}">제목</option>
+                            th:selected="${searchType == 'title'}">제목
+                    </option>
                     <option value="content"
-                            th:selected="${searchType == 'content'}">내용</option>
+                            th:selected="${searchType == 'content'}">내용
+                    </option>
                     <option value="all"
-                            th:selected="${searchType == 'all'}">제목 + 내용</option>
+                            th:selected="${searchType == 'all'}">제목 + 내용
+                    </option>
                 </select>
                 <input type="text" name="keyword" th:value="${keyword}"
                        class="form-control" style="width:400px" placeholder="검색어를 입력하세요">
@@ -32,11 +35,14 @@
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <div class="d-flex gap-2">
                         <a th:href="@{/questions/list(sort='latest',keyword=${keyword})}"
-                           class="btn btn-sm" th:classappend="${sort == 'latest' or sort == null} ? 'btn-primary' : 'btn-outline-secondary'">최신순</a>
+                           class="btn btn-sm"
+                           th:classappend="${sort == 'latest' or sort == null} ? 'btn-primary' : 'btn-outline-secondary'">최신순</a>
                         <a th:href="@{/questions/list(sort='view',keyword=${keyword})}"
-                           class="btn btn-sm" th:classappend="${sort == 'view'} ? 'btn-primary' : 'btn-outline-secondary'">조회수순</a>
+                           class="btn btn-sm"
+                           th:classappend="${sort == 'view'} ? 'btn-primary' : 'btn-outline-secondary'">조회수순</a>
                         <a th:href="@{/questions/list(sort='unanswered',keyword=${keyword})}"
-                           class="btn btn-sm" th:classappend="${sort == 'unanswered'} ? 'btn-primary' : 'btn-outline-secondary'">미답변순</a>
+                           class="btn btn-sm"
+                           th:classappend="${sort == 'unanswered'} ? 'btn-primary' : 'btn-outline-secondary'">미답변순</a>
                     </div>
                     <a href="/questions/new" class="btn btn-primary btn-sm">+ 질문하기</a>
                 </div>
@@ -46,11 +52,14 @@
                         <div th:each="q : ${questionPage.content}" class="p-3 border-bottom question-item">
                             <div class="d-flex gap-3">
                                 <div class="d-flex flex-column align-items-center gap-1" style="min-width:60px">
-                                    <div class="text-center rounded p-1" style="background:#f9fafb;border:1px solid #e5e7eb;font-size:12px">
-                                        <div class="fw-bold" th:text="${q.answerCount ?: 0}" style="font-size:16px">0</div>
+                                    <div class="text-center rounded p-1"
+                                         style="background:#f9fafb;border:1px solid #e5e7eb;font-size:12px">
+                                        <div class="fw-bold" th:text="${q.answerCount ?: 0}" style="font-size:16px">0
+                                        </div>
                                         <div class="text-muted">답변</div>
                                     </div>
-                                    <div class="text-center rounded p-1" style="background:#f9fafb;border:1px solid #e5e7eb;font-size:12px">
+                                    <div class="text-center rounded p-1"
+                                         style="background:#f9fafb;border:1px solid #e5e7eb;font-size:12px">
                                         <div class="fw-bold" th:text="${q.viewCount}" style="font-size:16px">0</div>
                                         <div class="text-muted">조회</div>
                                     </div>
@@ -66,7 +75,8 @@
                                        style="color:#111827;font-size:15px"></a>
                                     <div class="text-muted mt-1" style="font-size:12px">
                                         <span th:text="${q.member.nickname}">작성자</span>
-                                        <span class="ms-2" th:text="${#temporals.format(q.createdAt, 'yyyy.MM.dd')}">날짜</span>
+                                        <span class="ms-2"
+                                              th:text="${#temporals.format(q.createdAt, 'yyyy.MM.dd')}">날짜</span>
                                     </div>
                                 </div>
                             </div>
