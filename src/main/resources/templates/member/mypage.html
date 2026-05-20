@@ -68,7 +68,7 @@
                             <p th:if="${#lists.isEmpty(myQuestions)}" class="text-muted text-center py-5 mb-0">작성한 질문이 없습니다.</p>
 
                             <div class="list-group list-group-flush" th:unless="${#lists.isEmpty(myQuestions)}">
-                                <div th:each="q : ${myQuestions}" th:href="@{|/questions/${q.id}|}" class="list-group-item py-3">
+                                <a th:each="q : ${myQuestions}" th:href="@{|/questions/detail/${q.id}|}" class="list-group-item list-group-item-action py-3">
                                     <div class="d-flex justify-content-between align-items-center mb-1">
                                         <h6 class="mb-0 fw-bold text-truncate" style="max-width: 80%;" th:text="${q.title}">질문 제목</h6>
                                         <small class="text-muted" th:text="${#temporals.format(q.createdAt, 'yyyy.MM.dd')}">날짜</small>
@@ -76,7 +76,7 @@
                                     <div class="text-muted" style="font-size: 13px;">
                                         조회수 <span th:text="${q.viewCount}">0</span> · 답변 <span th:text="${q.answerCount}">0</span>
                                     </div>
-                                </div>
+                                </a>
                             </div>
                         </div>
 
@@ -84,7 +84,7 @@
                             <p th:if="${#lists.isEmpty(myAnswers)}" class="text-muted text-center py-5 mb-0">작성한 답변이 없습니다.</p>
 
                             <div class="list-group list-group-flush" th:unless="${#lists.isEmpty(myAnswers)}">
-                                <div th:each="a : ${myAnswers}" th:href="@{|/questions/${a.question.id}|}" class="list-group-item py-3">
+                                <a th:each="a : ${myAnswers}" th:href="@{|/questions/detail/${a.question.id}|}" class="list-group-item list-group-item-action py-3">
                                     <div class="d-flex justify-content-between align-items-center mb-1">
                                         <div class="text-truncate text-dark" style="max-width: 75%; font-size: 15px;" th:text="${a.content}">답변 내용</div>
                                         <small class="text-muted" th:text="${#temporals.format(a.createdAt, 'yyyy.MM.dd')}">날짜</small>
@@ -93,7 +93,7 @@
                                         <span class="text-truncate d-inline-block" style="max-width: 80%;">원문: [[${a.question.title}]]</span>
                                         <span th:if="${a.isSelected}" class="badge bg-success ms-2" style="font-size:11px;">채택됨</span>
                                     </div>
-                                </div>
+                                </a>
                             </div>
                         </div>
 
