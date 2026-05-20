@@ -38,8 +38,12 @@
         <div class="border border-success rounded p-3">
             <div class="d-flex justify-content-between align-items-start">
                 <div class="fw-semibold" th:text="${adoptedAnswer.member.nickname}">닉네임</div>
-                <div class="text-muted small"
-                     th:text="${#temporals.format(adoptedAnswer.createdAt, 'yyyy-MM-dd HH:mm')}">날짜</div>
+                <div class="text-muted small">
+                    <span th:if="${answer != null and answer.updatedAt != null and answer.updatedAt.isAfter(answer.createdAt.plusSeconds(1))}"
+                          th:text="${#temporals.format(answer.updatedAt, 'yyyy-MM-dd HH:mm')} + ' (수정됨)'">날짜</span>
+                    <span th:unless="${answer != null and answer.updatedAt != null and answer.updatedAt.isAfter(answer.createdAt.plusSeconds(1))}"
+                          th:text="${answer != null} ? ${#temporals.format(answer.createdAt, 'yyyy-MM-dd HH:mm')} : ''">날짜</span>
+                </div>
             </div>
             <div class="mt-2" style="white-space: pre-wrap;"
                  th:text="${adoptedAnswer.content}">채택된 답변 내용</div>
@@ -70,8 +74,12 @@
         <div class="d-flex justify-content-between align-items-start">
             <div class="fw-semibold" th:text="${answer.member.nickname}">닉네임</div>
             <div class="d-flex align-items-center gap-2">
-                <div class="text-muted small"
-                     th:text="${#temporals.format(answer.createdAt, 'yyyy-MM-dd HH:mm')}">날짜</div>
+                <div class="text-muted small">
+                    <span th:if="${answer != null and answer.updatedAt != null and answer.updatedAt.isAfter(answer.createdAt.plusSeconds(1))}"
+                          th:text="${#temporals.format(answer.updatedAt, 'yyyy-MM-dd HH:mm')} + ' (수정됨)'">날짜</span>
+                    <span th:unless="${answer != null and answer.updatedAt != null and answer.updatedAt.isAfter(answer.createdAt.plusSeconds(1))}"
+                          th:text="${answer != null} ? ${#temporals.format(answer.createdAt, 'yyyy-MM-dd HH:mm')} : ''">날짜</span>
+                </div>
                 <button th:if="${sessionMemberId != null and answer.member.id != sessionMemberId}"
                         type="button"
                         class="btn btn-sm btn-danger"
@@ -125,8 +133,12 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <span class="fw-semibold small" th:text="${comment.member.nickname}">닉네임</span>
                         <div class="d-flex align-items-center gap-2">
-                            <span class="text-muted small"
-                                  th:text="${#temporals.format(comment.createdAt, 'yyyy-MM-dd HH:mm')}">날짜</span>
+                            <span th:if="${comment != null and comment.updatedAt != null and comment.updatedAt.isAfter(comment.createdAt.plusSeconds(1))}"
+                                  class="text-muted small"
+                                  th:text="${#temporals.format(comment.updatedAt, 'yyyy-MM-dd HH:mm')} + ' (수정됨)'">날짜</span>
+                            <span th:unless="${comment != null and comment.updatedAt != null and comment.updatedAt.isAfter(comment.createdAt.plusSeconds(1))}"
+                                  class="text-muted small"
+                                  th:text="${comment != null} ? ${#temporals.format(comment.createdAt, 'yyyy-MM-dd HH:mm')} : ''">날짜</span>
                             <button th:if="${sessionMemberId != null and comment.member.id != sessionMemberId}"
                                     type="button"
                                     class="btn btn-sm btn-danger"
@@ -140,7 +152,11 @@
                     <div class="small mt-1" style="white-space: pre-wrap;"
                          th:text="${comment.content}">대댓글 내용</div>
 
-                    <div th:if="${comment.member.id == sessionMemberId}" class="mt-1">
+                    <div th:if="${comment.member.id == sessionMemberId}" class="mt-1 d-flex gap-2">
+                        <!-- 수정 버튼 추가 -->
+                        <button type="button"
+                                class="btn btn-sm btn-link text-primary p-0 comment-edit-btn">수정</button>
+
                         <form th:action="@{'/comments/' + ${comment.id} + '/delete'}"
                               method="post"
                               onsubmit="return confirm('삭제하시겠습니까?');"
@@ -149,6 +165,22 @@
                                     class="btn btn-sm btn-link text-danger p-0">삭제</button>
                         </form>
                     </div>
+
+                    <form th:action="@{'/comments/' + ${comment.id} + '/update'}"
+                          method="post"
+                          class="comment-edit-form mt-1"
+                          style="display:none;">
+                        <input type="text"
+                               name="content"
+                               class="form-control form-control-sm"
+                               th:value="${comment.content}">
+                        <div class="mt-1 d-flex gap-2 justify-content-end">
+                            <button type="button"
+                                    class="btn btn-sm btn-outline-secondary comment-edit-cancel-btn">취소</button>
+                            <button type="submit"
+                                    class="btn btn-sm btn-primary">수정 완료</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -285,6 +317,26 @@
             if (!isVisible) {
                 form.querySelector('input').focus();
             }
+        });
+    });
+
+    // 대댓글 수정 버튼
+    document.querySelectorAll('.comment-edit-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const commentDiv = this.closest('.mb-2');
+            commentDiv.querySelector('.small.mt-1').style.display = 'none';
+            commentDiv.querySelector('.comment-edit-form').style.display = 'block';
+            this.style.display = 'none';
+        });
+    });
+
+    // 대댓글 수정 취소
+    document.querySelectorAll('.comment-edit-cancel-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const commentDiv = this.closest('.mb-2');
+            commentDiv.querySelector('.small.mt-1').style.display = 'block';
+            commentDiv.querySelector('.comment-edit-form').style.display = 'none';
+            commentDiv.querySelector('.comment-edit-btn').style.display = 'inline';
         });
     });
 

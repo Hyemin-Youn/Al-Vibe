@@ -170,6 +170,21 @@ public class AnswerController {
         return "redirect:/questions/detail/" + questionId;
     }
 
+    // 대댓글 수정
+    @PostMapping("/comments/{commentId}/update")
+    public String updateComment(@PathVariable Long commentId,
+                                @ModelAttribute AnswerFormDto dto,
+                                @AuthenticationPrincipal UserDetails userDetails,
+                                RedirectAttributes redirectAttributes) {
+
+        if (userDetails == null) return "redirect:/member/login";
+
+        Long memberId = getMemberId(userDetails);
+        answerService.updateAnswer(commentId, dto, memberId);
+        Long questionId = answerService.getQuestionIdByAnswerId(commentId);
+        return "redirect:/questions/detail/" + questionId;
+    }
+
     // 대댓글 삭제
     @PostMapping("/comments/{id}/delete")
     public String deleteComment(
