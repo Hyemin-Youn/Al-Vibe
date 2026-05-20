@@ -55,4 +55,6 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
 
     // 회원이 작성한 질문 목록
     List<Question> findByMember_IdAndIsDeletedFalseOrderByCreatedAtDesc(Long memberId);
+
+    long countByCategory(Category category);
 }

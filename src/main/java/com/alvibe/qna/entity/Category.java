@@ -13,4 +13,7 @@ public class Category {
     private Integer id;
 
     private String name;
+
+    @Transient
+    private long questionCount;
 }

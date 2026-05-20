@@ -63,6 +63,23 @@ public class QuestionService {
         return categoryRepository.findAll();
     }
 
+    public List<Category> getAllCategoriesForList() {
+        List<Category> categories = categoryRepository.findAll();
+        long totalCount = 0;
+
+        for(Category category : categories) {
+            long count = questionRepository.countByCategory(category);
+            category.setQuestionCount(count);
+            totalCount += count;
+        }
+        Category all = new Category();
+        all.setName("전체");
+        all.setQuestionCount(totalCount);
+
+        categories.add(0, all);
+        return categories;
+    }
+
     // 4. 글 수정
     // 수정용 데이터 가져오기
     public QuestionFormDto getQuestionForm(Long id, Long memberId) {
@@ -173,12 +190,6 @@ public class QuestionService {
             default -> questionRepository.findByTitleContaining(keyword, pageable);
         };
     }
-
-    // 인기 질문 5개 추출
-//    public List<Question> getPopularQuestions() {
-//        // like 칼럼 없음
-//        return questionRepository.findTop5ByOrderByLikeCountDesc();
-//    }
 
 
     // 회원의 질문 개수 조회

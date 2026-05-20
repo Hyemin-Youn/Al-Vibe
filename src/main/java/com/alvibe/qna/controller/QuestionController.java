@@ -56,7 +56,7 @@ public class QuestionController {
         model.addAttribute("category", categoryName);
 
         // 임시 카테고리 아이콘 생성
-        model.addAttribute("categories", questionService.getAllCategories());
+        model.addAttribute("categories", questionService.getAllCategoriesForList());
         model.addAttribute("currentCategoryId", categoryId);
 
         return "question/list";
@@ -175,29 +175,5 @@ public class QuestionController {
         return "redirect:/questions/list";
     }
 
-    // 질문 목록 조회 (페이지 번호, 사이즈, 정렬 기준)
-    @GetMapping
-    public String getQuestions(
-            Model model,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "createdAt") String sortBy,
-            @RequestParam(defaultValue = "desc") String direction) {
-
-        Sort sort = direction.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
-        Pageable pageable = PageRequest.of(page, size, sort);
-
-//        Page<Question> questionPage = questionService.getAllQuestion();
-//
-//        model.addAttribute("questionPage", questionPage);
-        return "/";
-    }
-
-//
-//    // 연관 Q&A
-//    @GetMapping("/{pid}/related")
-//    public String related(@PathVariable("pid") int pid) {
-//
-//    }
 
 }
