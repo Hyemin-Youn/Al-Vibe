@@ -34,13 +34,25 @@
             <div class="col-9">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <div class="d-flex gap-2">
-                        <a th:href="@{/questions/list(sort='latest',keyword=${keyword})}"
+                        <a th:href="@{/questions/list(
+                                sort='latest',
+                                keyword=${keyword},
+                                category=${category},
+                                searchType=${searchType})}"
                            class="btn btn-sm"
                            th:classappend="${sort == 'latest' or sort == null} ? 'btn-primary' : 'btn-outline-secondary'">최신순</a>
-                        <a th:href="@{/questions/list(sort='view',keyword=${keyword})}"
+                        <a th:href="@{/questions/list(
+                                sort='view',
+                                keyword=${keyword},
+                                category=${category},
+                                searchType=${searchType})}"
                            class="btn btn-sm"
                            th:classappend="${sort == 'view'} ? 'btn-primary' : 'btn-outline-secondary'">조회수순</a>
-                        <a th:href="@{/questions/list(sort='unanswered',keyword=${keyword})}"
+                        <a th:href="@{/questions/list(
+                                sort='unanswered',
+                                keyword=${keyword},
+                                category=${category},
+                                searchType=${searchType})}"
                            class="btn btn-sm"
                            th:classappend="${sort == 'unanswered'} ? 'btn-primary' : 'btn-outline-secondary'">미답변순</a>
                     </div>
@@ -90,16 +102,31 @@
                 <!-- 페이징 -->
                 <div class="mt-4 d-flex justify-content-center gap-1" th:if="${!#lists.isEmpty(questionPage.content)}">
                     <a th:if="${!questionPage.first}"
-                       th:href="@{/questions/list(page=${questionPage.number - 1},keyword=${keyword},sort=${sort})}"
+                       th:href="@{/questions/list(
+                                page=${questionPage.number - 1},
+                                keyword=${keyword},
+                                sort=${sort},
+                                category=${category},
+                                searchType=${searchType})}"
                        class="btn btn-sm btn-outline-secondary">이전</a>
                     <span th:each="i : ${#numbers.sequence(0, questionPage.totalPages - 1)}">
-            <a th:href="@{/questions/list(page=${i},keyword=${keyword},sort=${sort})}"
-               th:text="${i + 1}"
-               class="btn btn-sm"
-               th:classappend="${i == questionPage.number} ? 'btn-primary' : 'btn-outline-secondary'"></a>
-          </span>
+                    <a th:href="@{/questions/list(
+                                page=${i},
+                                keyword=${keyword},
+                                sort=${sort},
+                                category=${category},
+                                searchType=${searchType})}"
+                       th:text="${i + 1}"
+                       class="btn btn-sm"
+                       th:classappend="${i == questionPage.number} ? 'btn-primary' : 'btn-outline-secondary'"></a>
+                    </span>
                     <a th:if="${!questionPage.last}"
-                       th:href="@{/questions/list(page=${questionPage.number + 1},keyword=${keyword},sort=${sort})}"
+                       th:href="@{/questions/list(
+                                page=${questionPage.number + 1},
+                                keyword=${keyword},
+                                sort=${sort},
+                                category=${category},
+                                searchType=${searchType})}"
                        class="btn btn-sm btn-outline-secondary">다음</a>
                 </div>
             </div>
@@ -113,7 +140,13 @@
                             th:each="c : ${categories}">
 
                             <!-- 카테고리 이름 -->
-                            <a th:href="@{/questions/list(category=${c.name == '전체' ? null : c.name})}"
+                            <a th:href="@{/questions/list(
+                                    category=${c.name == '전체' ? null : c.name},
+                                    page=${page},
+                                    keyword=${keyword},
+                                    sort=${sort},
+                                    searchType=${searchType}
+                                )}"
                                class="text-decoration-none"
                                th:style="${category == c.name or (category == null and c.name == '전체')}
                   ? 'color:#ea580c;font-weight:600'
