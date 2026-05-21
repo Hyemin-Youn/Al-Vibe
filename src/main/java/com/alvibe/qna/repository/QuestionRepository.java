@@ -57,4 +57,12 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
     List<Question> findByMember_IdAndIsDeletedFalseOrderByCreatedAtDesc(Long memberId);
 
     long countByCategory(Category category);
+
+    Page<Question> findByCategoryAndAnswersEmpty(Category category, Pageable pageable);
+
+    Page<Question> findByCategoryAndContentContainingAndAnswersEmpty(Category category, String keyword, Pageable pageable);
+
+    Page<Question> findByCategoryAndTitleContainingOrCategoryAndContentContainingAndAnswersEmpty(Category category, String keyword, Category category1, String keyword1, Pageable pageable);
+
+    Page<Question> findByCategoryAndTitleContainingAndAnswersEmpty(Category category, String keyword, Pageable pageable);
 }

@@ -140,11 +140,6 @@ public class QuestionService {
                     10,
                     Sort.by(Sort.Direction.DESC, "viewCount")
             );
-            case "like" -> PageRequest.of(
-                    page,
-                    10,
-                    Sort.by(Sort.Direction.DESC, "recommendCount")
-            );
             default -> PageRequest.of(
                     page,
                     10,
@@ -153,6 +148,23 @@ public class QuestionService {
         };
 
         if (sort.equals("unanswered")) {
+            if(category != null) {
+                if(keyword != null) {
+                    return questionRepository.findByCategoryAndAnswersEmpty(category, pageable);
+                }
+                return switch(searchType) {
+                    case "content" ->
+                        questionRepository.findByCategoryAndContentContainingAndAnswersEmpty(category, keyword, pageable);
+                    case "all" ->
+                        questionRepository.findByCategoryAndTitleContainingOrCategoryAndContentContainingAndAnswersEmpty(
+                                category, keyword,
+                                category, keyword,
+                                pageable
+                        );
+                    default ->
+                        questionRepository.findByCategoryAndTitleContainingAndAnswersEmpty(category, keyword, pageable);
+                };
+            }
             if (keyword.isEmpty()) {
                 return questionRepository.findByAnswersEmpty(pageable);
             }
