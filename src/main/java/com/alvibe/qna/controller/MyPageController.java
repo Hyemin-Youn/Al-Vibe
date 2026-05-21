@@ -58,7 +58,7 @@ public class MyPageController {
     }
 
     @PostMapping("/member/mypage/info")
-    public String updateMyInfo(Principal principal, @Valid UpdateMyInfoRequestDto updateMyInfoRequestDto, BindingResult bindingResult, Model model){
+    public String updateMyInfo(Principal principal, @Valid UpdateMyInfoRequestDto updateMyInfoRequestDto, BindingResult bindingResult, Model model, HttpServletRequest request){
         if(bindingResult.hasErrors()){
             String email = principal.getName();
             MyPageProfileDto myPageProfileDto = myPageService.lookUpMemberByEmail(email);
@@ -78,13 +78,11 @@ public class MyPageController {
         try{
             myPageService.updateMyInfo(principal.getName(), updateMyInfoRequestDto);
 
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            Authentication newAuthentication = new UsernamePasswordAuthenticationToken(
-                    updateMyInfoRequestDto.getEmail(),
-                    authentication.getCredentials(),
-                    authentication.getAuthorities()
-            );
-            SecurityContextHolder.getContext().setAuthentication(newAuthentication);
+            HttpSession session = request.getSession(false);
+            if(session != null){
+                session.invalidate();
+            }
+            SecurityContextHolder.clearContext();
 
         } catch (IllegalStateException e) {
             if(e.getMessage().contains("닉네임")){
@@ -109,7 +107,7 @@ public class MyPageController {
             model.addAttribute("changePasswordRequestDto", new ChangePasswordRequestDto());
             return "member/mypage";
         }
-        return "redirect:/member/mypage";
+        return "redirect:/questions/list";
     }
 
     @PostMapping("/member/mypage/password")
